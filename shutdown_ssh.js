@@ -2,8 +2,8 @@ module.exports.shutdown = function(device){
 	var Client = require('ssh2').Client;
 
 	var passwords = {
-		shell_password = '',
-		sudo_password = ''
+		shell_password: '',
+		sudo_password: ''
 	}
 
 
