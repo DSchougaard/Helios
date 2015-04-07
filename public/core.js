@@ -6,7 +6,7 @@ helios.config(function($routeProvider, $locationProvider){
 
 		// Main View : List of Devices
 		.when('/', {
-			templateUrl		: '/list.html'
+			templateUrl		: '/pages/list.html'
 		})
 
 		.when('/add', {

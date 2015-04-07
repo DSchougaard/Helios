@@ -60,6 +60,7 @@ app.post('/api/machines/add', function(req, res){
 
 
 app.get('/*', function(req, res) {
+	console.log('Received HTTP request.');
 	res.sendFile( __dirname + '/public/index.html'); 
 });
 
