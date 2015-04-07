@@ -1,0 +1,40 @@
+body {
+    background-color: #e8e8e8;
+
+}
+
+
+p10{
+	font-family: verdana;
+	font-weight: bold;
+}
+
+
+.right{
+	float: right;
+}
+
+#machinelist{
+	background-color: #FFFFFF;
+	width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 3px;
+
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+#machine { 
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 5px;
+	padding-right: 5px;
+	
+	border: 1px solid;
+
+
+
+}

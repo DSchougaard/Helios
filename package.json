@@ -1,0 +1,14 @@
+{
+	"name"			: "ProjectHelios",
+	"version"		: "0.0.1",
+	"description"	: "WoL service.",
+	"main"			: "server.js",
+	"author"		: "Daniel 'Terra' Schougaard",
+	"dependencies"	: {
+		"express"	: "~4.12.2",
+		"body-parser" : "~1.12.2",
+		"wake_on_lan" : "*",
+		"ssh2" 	 : "*",
+		"mongodb": "*"
+	}
+}
