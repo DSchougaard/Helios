@@ -24,16 +24,15 @@ helios.controller('mainController', function($scope, $http) {
 });
 
 helios.controller('listController', function($scope, $http) {
+	$scope.loading = true;
 	$http.get('/api/devices')
 		.success(function(data) {
 			$scope.devices = data;
-		    console.log(data);
+			$scope.loading = false;
 		})
 		.error(function(data) {
 		    console.log('Error: ' + data);
 		});
-
-
 
 	$scope.wakeDevice = function(mac){
 		$http.get('/api/device/wake/' + mac)

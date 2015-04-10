@@ -1,5 +1,9 @@
 
 <legend>List of Machines</legend>
+<div class="text-center" ng-show="loading" style="padding-bottom:20px">
+	<div class="fa fa-spinner fa-spin fa-5x"></div>
+</div>
+
 <div style="height:40px;" ng-repeat="device in devices">
     <p class="inline pull-left" style="padding-top:6px"> {{device.name}} : </p>
 
