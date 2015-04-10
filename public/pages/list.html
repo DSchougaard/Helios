@@ -1,9 +1,8 @@
 
 <legend>List of Machines</legend>
-<div style="height:40px;" ng-repeat="machine in machines">
-    <p class="inline pull-left" style="padding-top:6px"> {{machine.name}} : </p>
+<div style="height:40px;" ng-repeat="device in devices">
+    <p class="inline pull-left" style="padding-top:6px"> {{device.name}} : </p>
 
-    <button type="button" class="btn btn-success inline pull-right" style="width:100px !important" ng-click="wakeMachine(machine.mac)" ng-hide="machine.online">Wake it!</button>
-    <button type="button" class="btn btn-danger inline pull-right"  style="width:100px !important" ng-click="turnOffMachine(machine.mac)"ng-show="machine.online">Turn it off!</button><br>
-
+    <button type="button" class="btn btn-success inline pull-right" style="width:100px !important" ng-click="wakeDevice(device._id)" ng-hide="device.online">Wake it!</button>
+    <button type="button" class="btn btn-danger inline pull-right"  style="width:100px !important" ng-click="turnOffDevice(device._id)"ng-show="device.online">Turn it off!</button><br>
 </div>
