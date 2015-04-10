@@ -1,6 +1,6 @@
 var validator = require('validator');
 var wol = require('wake_on_lan');
-var ping = require('net-ping');
+var ping = require('ping');
 var Q = require('q');
 
 
@@ -18,36 +18,38 @@ var shutdown_ssh = require('./../shutdown_ssh');
 */
 
 var ping_options = {
-	retries: 3,
-	timeout: 500
-};
+	timeout: 1
+}
 
+
+function ping_host(device){
+	var deferred = Q.defer();
+	ping.sys.probe(device.ip, function(isAlive){
+					device.online = isAlive;
+					deferred.resolve(device);
+					});
+
+	return deferred.promise;
+}
 
 module.exports = function(app, db, device_collection){
 	app.get('/api/devices', function(req, res){
+		/*
+		ping.sys.probe("192.168.1.148", function(isAlive){
+			console.log("test : " + isAlive);
+		});
+		*/
 		var collection = db.collection(device_collection);
 		collection.find().toArray(function(err, docs){
 
-			var calls = [];
-			for( var d in docs ){
-				calls.push(isAlive(d));
+			var method_calls = [];
+			for( var i = 0 ; i < docs.length ; i++){
+				method_calls.push( ping_host(docs[i]) );
 			}
 
-			Q.all(calls);
-			
-			function isAlive(device){
-				var session = ping.createSession(ping_options);
-				sessing.pingHost(device.ip, function(error, target){
-					if( error ){
-						device.online = false;
-					}else{
-						device.online = true;
-					}
-				});
-			};
-
-
-		    res.json(docs);
+			Q.all(method_calls).then(function(promises){
+				res.json(docs);
+			});
 		});
 	});
 
