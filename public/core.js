@@ -11,6 +11,10 @@ helios.config(function($routeProvider, $locationProvider){
 
 		.when('/add', {
 			templateUrl		: '/pages/add.html'
+		})
+
+		.when('/error', {
+			templateUrl		: '/pages/error.html'
 		});
 	$locationProvider.html5Mode(true)
 });
@@ -20,9 +24,9 @@ helios.controller('mainController', function($scope, $http) {
 });
 
 helios.controller('listController', function($scope, $http) {
-	$http.get('/api/machines')
+	$http.get('/api/devices')
 		.success(function(data) {
-			$scope.machines = data;
+			$scope.devices = data;
 		    console.log(data);
 		})
 		.error(function(data) {
@@ -31,8 +35,8 @@ helios.controller('listController', function($scope, $http) {
 
 
 
-	$scope.wakeMachine = function(mac){
-		$http.get('/api/machines/wake/' + mac)
+	$scope.wakeDevice = function(mac){
+		$http.get('/api/device/wake/' + mac)
 			.success(function(data) {
 				console.log("Successfully sent magic packet to %s.", mac);
 			})
@@ -41,8 +45,8 @@ helios.controller('listController', function($scope, $http) {
 			});
 	}
 
-	$scope.turnOffMachine = function(mac){
-		$http.get('/api/machines/turnoff/' + mac)
+	$scope.turnOffDevice = function(mac){
+		$http.get('/api/device/turnoff/' + mac)
 			.success(function(data) {
 				console.log("Successfully turned off %s.", mac);
 			})
@@ -54,14 +58,13 @@ helios.controller('listController', function($scope, $http) {
 
 helios.controller('addDeviceController', function($scope, $location, $http) {
 	$scope.submit = function(device){	
-		$http.post('/api/machines/add', device)
+		$http.post('/api/device', device)
 		.success( function(data, status, headers, config){
 			$location.path('/');
 		})
 		.error( function(data, status, headers, config){
 			console.log("Error!");
-			console.log(headers);
-			console.log(data);
+			$location.path('/error');
 		});
 	};
 
