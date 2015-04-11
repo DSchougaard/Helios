@@ -24,7 +24,9 @@ helios.controller('mainController', function($scope, $http) {
 });
 
 helios.controller('listController', function($scope, $http) {
+	// Env Variables
 	$scope.loading = true;
+
 	$http.get('/api/devices')
 		.success(function(data) {
 			$scope.devices = data;
@@ -33,6 +35,11 @@ helios.controller('listController', function($scope, $http) {
 		.error(function(data) {
 		    console.log('Error: ' + data);
 		});
+
+
+	$scope.interactWithDevice = function(device){
+		
+	}
 
 	$scope.wakeDevice = function(mac){
 		$http.get('/api/device/wake/' + mac)

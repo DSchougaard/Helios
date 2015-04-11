@@ -1,14 +1,34 @@
+<legend> Available Devices </legend>
 
-<legend>List of Machines</legend>
 <!-- Loader! -->
 <div class="text-center" ng-show="loading" style="padding-bottom:20px">
 	<div class="fa fa-spinner fa-spin fa-5x"></div>
 </div>
 
+
+
 <!-- Actual List of Machines -->
 <div style="height:40px;" ng-repeat="device in devices">
     <p class="inline pull-left" style="padding-top:6px"> {{device.name}} : </p>
 
-    <button type="button" class="btn btn-success inline pull-right" style="width:100px !important" ng-click="wakeDevice(device._id)" ng-hide="device.online">Wake it!</button>
-    <button type="button" class="btn btn-danger inline pull-right"  style="width:100px !important" ng-click="turnOffDevice(device._id)"ng-show="device.online">Turn it off!</button><br>
+    <!-- Display either wake or shutdown button -->
+    <!-- <button type="button" class="btn btn-success inline pull-right" style="width:100px !important" ng-click="wakeDevice(device._id)" ng-hide="device.online">Wake it!</button>
+    <button type="button" class="btn btn-danger inline pull-right"  style="width:100px !important" ng-click="turnOffDevice(device._id)"ng-show="device.online">Turn it off!</button> -->
+
+
+
+	<div class="btn-group inline pull-right">
+		<!-- Wake Device button -->
+		<button type="button" style="width:100px !important" class="btn btn-success" ng-class="device.online?'btn-danger':'btn-success'" ng-click="interactWithDevice(device)"> {{device.online==true?'Turn it off!':'Wake it!'}}</button>
+		<button type="button" class="btn dropdown-toggle btn-success" ng-class="device.online?'btn-danger':'btn-success'" data-toggle="dropdown" ariaexpanded="false">
+			<span class="caret"></span>
+			<span class="sr-only">Toggle Dropdown</span>
+		</button>
+		<ul class="dropdown-menu" role="menu">
+			<li><a href="#">Update</a></li>
+			<li><a href="#">Delete</a></li>
+			<!-- <li class="divider"></li> -->
+		</ul>
+	</div>
+    <br>
 </div>
