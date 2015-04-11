@@ -1,6 +1,6 @@
 {
   "name": "ProjectHelios",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "WoL service.",
   "main": "server.js",
   "author": "Daniel 'Terra' Schougaard",
