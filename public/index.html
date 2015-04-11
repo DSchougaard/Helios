@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html ng-app="helios" >
     <head>
         <meta charset="utf-8">
@@ -37,7 +38,7 @@
                     
 
                     <div class="navbar-header">
-                        <button type="button" class="navbar-toggle" ng-init="navCollapsed = true" ng-click="navCollapsed = !navCollapsed">
+                        <button type="button" class="navbar-toggle" ng-init="navbar_collapsed = true" ng-click="navbar_collapsed = !navbar_collapsed">
                             <span class="sr-only">Toggle navigation</span>
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
@@ -47,9 +48,9 @@
                     </div>
 
                     <!-- Elements in menu -->
-                    <div class="collapse navbar-collapse" collaps="navbarCollapsed" ng-class="{'in':!navCollapsed}">
-                        <ul class="nav navbar-nav navbar-right">
-                            <li><a href="#"><i class="fa fa-home"></i> Home</a></li>
+                    <div class="collapse navbar-collapse"  ng-class="{'in':!navbar_collapsed}">
+                        <ul class="nav navbar-nav navbar-right" ng-click="navbar_collapsed = true">
+                            <li><a href="#" ><i class="fa fa-home"></i> Home</a></li>
                             <li><a href="#add"><i class="fa fa-shield"></i> Add</a></li>
                         </ul>
                     </div>
