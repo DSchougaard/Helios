@@ -2,7 +2,7 @@ var validator = require('validator');
 var wol = require('wake_on_lan');
 var ping = require('ping');
 var Q = require('q');
-
+var sanitize = require('mongo-sanitize');
 
 /*
 	Own Modules
@@ -24,13 +24,15 @@ var ping_options = {
 
 function ping_host(device){
 	var deferred = Q.defer();
-	ping.sys.probe(device.ip, function(isAlive){
-					device.online = isAlive;
-					deferred.resolve(device);
-					});
+	ping.sys.probe(device.ip, 
+		function(isAlive){
+			device.online = isAlive;
+			deferred.resolve(device);
+		});
 
 	return deferred.promise;
 }
+
 
 module.exports = function(app, db, device_collection){
 	app.get('/api/devices', function(req, res){
@@ -56,7 +58,8 @@ module.exports = function(app, db, device_collection){
 
 	app.get('/api/device/wake/:id', function(req, res){
 		var collection = db.collection(device_collection);
-		collection.find({ _id : req.params.id }).toArray( function(err, results){
+		var id = sanitize(req.parmas.id);
+		collection.find({ _id : id }).toArray( function(err, results){
 			if( err ){
 				res.sendStatus(400);
 				return;
@@ -80,7 +83,8 @@ module.exports = function(app, db, device_collection){
 
 	app.get('/api/device/turnoff/:id', function(req, res){
 		var collection = db.collection(device_collection);
-		collection.find({ _id : req.params.id }).toArray( function(err, results){
+		var id = sanitize(req.parmas.id);
+		collection.find({ _id : id }).toArray( function(err, results){
 			if( err ){
 				res.sendStatus(400);
 				return;
