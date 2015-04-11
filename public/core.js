@@ -38,7 +38,18 @@ helios.controller('listController', function($scope, $http) {
 
 
 	$scope.interactWithDevice = function(device){
-		
+		console.log("Device: " + device._id);
+		var api_selection = '/api/device/';
+		if( device.online ){
+			api_selection = api_selection + "turnoff/";
+		}else{
+			api_selection = api_selection + "wake/";
+		}
+
+		$http.get(api_selection + device._id)
+			.error( function(data){
+				console.log("Error: " + data);
+			});
 	}
 
 	$scope.wakeDevice = function(mac){
