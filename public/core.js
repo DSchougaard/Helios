@@ -46,6 +46,8 @@ helios.controller('listController', function($scope, $http) {
 			api_selection = api_selection + "wake/";
 		}
 
+		console.log('API Path : ' + api_selection); 
+
 		$http.get(api_selection + device._id)
 			.error( function(data){
 				console.log("Error: " + data);

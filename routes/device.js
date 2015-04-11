@@ -4,6 +4,8 @@ var ping = require('ping');
 var Q = require('q');
 var sanitize = require('mongo-sanitize');
 
+
+var ObjectId = require('mongodb').ObjectID
 /*
 	Own Modules
 */
@@ -58,17 +60,22 @@ module.exports = function(app, db, device_collection){
 
 	app.get('/api/device/wake/:id', function(req, res){
 		var collection = db.collection(device_collection);
-		var id = sanitize(req.parmas.id);
-		collection.find({ _id : id }).toArray( function(err, results){
+		var id = sanitize(req.params.id);
+		collection.find({ "_id" : new ObjectId(id) }).toArray( function(err, results){
 			if( err ){
 				res.sendStatus(400);
 				return;
 			}
 
-			if( docs.length > 1 )
+			if( results.length > 1 )
 				console.log("Somehow more than one device with a unique ID was found. Using index 0.");
 
-			var device = docs[0];
+			if( results.length === 0 ){
+				console.log("No device was found.");
+				res.sendStatus(503);
+			}
+
+			var device = results[0];
 			wol.wake(device.mac, function(error){
 				if( error ){
 					// Error in waking device
@@ -84,7 +91,7 @@ module.exports = function(app, db, device_collection){
 	app.get('/api/device/turnoff/:id', function(req, res){
 		var collection = db.collection(device_collection);
 		var id = sanitize(req.parmas.id);
-		collection.find({ _id : id }).toArray( function(err, results){
+		collection.find({ "_id" : new ObjectId(id) }).toArray( function(err, results){
 			if( err ){
 				res.sendStatus(400);
 				return;
