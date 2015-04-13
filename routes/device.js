@@ -141,7 +141,7 @@ module.exports = function(app, db, device_collection){
 			}else{
 				console.log("Failed to delete device.");
 				res.sendStatus(404);
-			}c
+			}
 		});
 	});
 }
