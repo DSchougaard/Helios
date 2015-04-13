@@ -22,7 +22,7 @@ helios.controller('mainController', function($scope, $http) {
 	
 });
 
-helios.controller('listController', function($scope, $http) {
+helios.controller('listController', function($scope, $window, $http) {
 	// Env Variables
 	$scope.loading = true;
 
@@ -75,7 +75,11 @@ helios.controller('listController', function($scope, $http) {
 
 	$scope.delete = function(device){
 		console.log("Attempting to delete %j", device);
-		$http.delete('/api/device/' + device._id, device)
+		$http.delete('/api/device/' + device._id)
+			.success(function(data){
+				console.log("Successfully deleted device.");
+				$window.location.reload();
+			})
 			.error(function(data){
 				console.log("Error: " + data);
 			});
