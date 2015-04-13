@@ -90,7 +90,7 @@ module.exports = function(app, db, device_collection){
 
 	app.get('/api/device/turnoff/:id', function(req, res){
 		var collection = db.collection(device_collection);
-		var id = sanitize(req.parmas.id);
+		var id = sanitize(req.params.id);
 		collection.find({ "_id" : new ObjectId(id) }).toArray( function(err, results){
 			if( err ){
 				res.sendStatus(400);
@@ -114,23 +114,60 @@ module.exports = function(app, db, device_collection){
 		console.log("isAlphanumeric : " + validator.isAlphanumeric(device.name));
 
 		// Validate the input
-		/*if(	!validator.isIP(device.ip, 4)
+		if(	!validator.isIP(device.ip, 4)
 		|| 	!validator.isAlphanumeric(device.name) ){
 			// Input error
 			res.sendStatus(400);
 			return;
-		}*/
-		collection.insert(req.body, function(err, records){
+		}
+		collection.insert(device, function(err, records){
 			if(err){
 				console.log(err);
 				res.sendStatus(500)
 			}else{
-				res.sendStatus(202);
+				// Reply the created object to the client
+				res.status(202).json(device);
 			}
 		});
 	});
 
-	app.delete('/api/device', function(req, res){
+	app.delete('/api/device/:id', function(req, res){
 		var collection = db.collection(device_collection);
+		var id = sanitize(req.params.id);
+		collection.remove({ "_id" : new ObjectId(id)}, function(err, result){
+			if(result.result.n === 1){
+				console.log("Device was deleted.");
+				res.sendStatus(200);
+			}else{
+				console.log("Failed to delete device.");
+				res.sendStatus(404);
+			}c
+		});
 	});
 }
+
+
+
+
+
+
+var removeDocument = function(db, callback) {
+  // Get the documents collection
+  var collection = db.collection('documents');
+  // Insert some documents
+  collection.remove({ a : 3 }, function(err, result) {
+    assert.equal(err, null);
+    assert.equal(1, result.result.n);
+    console.log("Removed the document with the field a equal to 3");
+    callback(result);
+  });    
+}
+
+
+
+
+
+
+
+
+
