@@ -22,13 +22,16 @@ helios.controller('mainController', function($scope, $http) {
 	
 });
 
-helios.controller('listController', function($scope, $window, $http) {
+helios.controller('listController', function($rootScope, $scope, $route, $http) {
 	// Env Variables
 	$scope.loading = true;
 
+	// Setup lodash
+	$scope._ = _;
+
 	$http.get('/api/devices')
 		.success(function(data) {
-			$scope.devices = data;
+			$rootScope.devices = data;
 			$scope.loading = false;
 		})
 		.error(function(data) {
@@ -77,8 +80,14 @@ helios.controller('listController', function($scope, $window, $http) {
 		console.log("Attempting to delete %j", device);
 		$http.delete('/api/device/' + device._id)
 			.success(function(data){
-				console.log("Successfully deleted device.");
-				$window.location.reload();
+
+				// Quickly remove the deleted device, to avoid full reload.
+				_.remove($rootScope.devices, function(d){
+					return d._id === device._id;
+				})
+				
+				// Reloads main view, using data already in "devices" list.
+				$route.reload();
 			})
 			.error(function(data){
 				console.log("Error: " + data);
@@ -91,12 +100,16 @@ helios.controller('listController', function($scope, $window, $http) {
 
 });
 
-helios.controller('addDeviceController', function($scope, $location, $window, $http) {
+helios.controller('addDeviceController', function($rootScope, $scope, $location, $route, $http) {
 	$scope.submit = function(device){	
 		$http.post('/api/device', device)
 		.success( function(data, status, headers, config){		
+			// Push newly created device to the stack of devices
+			$rootScope.devices.push(data);
+
+			// Redirect to main and reload global device list.
 			$location.path('/');
-			$window.location.reload();
+			$route.reload();
 		})
 		.error( function(data, status, headers, config){
 			console.log("Error!");
@@ -108,12 +121,6 @@ helios.controller('addDeviceController', function($scope, $location, $window, $h
 
 	}
 });
-
-
-
-
-
-
 
 
 
