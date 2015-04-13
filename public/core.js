@@ -1,6 +1,5 @@
 var helios = angular.module('helios', ['ngRoute']);
 
-
 helios.config(function($routeProvider, $locationProvider){
 	$routeProvider
 
@@ -38,7 +37,7 @@ helios.controller('listController', function($scope, $http) {
 
 
 	$scope.interactWithDevice = function(device){
-		console.log("Device: " + device._id);
+		console.log("Device: %j.", device);
 		var api_selection = '/api/device/';
 		if( device.online ){
 			api_selection = api_selection + "turnoff/";
@@ -73,13 +72,27 @@ helios.controller('listController', function($scope, $http) {
 				console.log("Error in turning off %s.", mac);
 			});
 	}	
+
+	$scope.delete = function(device){
+		console.log("Attempting to delete %j", device);
+		$http.delete('/api/device/' + device._id, device)
+			.error(function(data){
+				console.log("Error: " + data);
+			});
+	}
+
+	$scope.edit = function(device){
+
+	}
+
 });
 
-helios.controller('addDeviceController', function($scope, $location, $http) {
+helios.controller('addDeviceController', function($scope, $location, $window, $http) {
 	$scope.submit = function(device){	
 		$http.post('/api/device', device)
-		.success( function(data, status, headers, config){
+		.success( function(data, status, headers, config){		
 			$location.path('/');
+			$window.location.reload();
 		})
 		.error( function(data, status, headers, config){
 			console.log("Error!");
