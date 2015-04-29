@@ -131,7 +131,7 @@ helios.controller('addDeviceController', function($rootScope, $scope, $location,
 	};
 
 	$scope.cancel = function(){
-
+		$location.path('/');
 	}
 });
 
@@ -152,9 +152,7 @@ helios.controller('editDeviceController', function($scope, $routeParams, $rootSc
 		});
 
 	$scope.submit = function(){
-
 		console.log("Attempting to update device with ID " + $scope.device._id);
-
 		var newDevice = {
 			name: $scope.device.name,
 			ip 	: $scope.device.ip,
@@ -175,14 +173,17 @@ helios.controller('editDeviceController', function($scope, $routeParams, $rootSc
 				// Push newly updated device to the stack of devices
 				$rootScope.devices.push(newDevice);
 
-				// Redirect to main and reload global device list.
+				// Redirect to main
 				$location.path('/');
-				$route.reload();
 			})
 			.error(function(data, status){
 				console.log("Error: " + data);
 				$location.path('/error');
 			});
+	}
+
+	$scope.cancel = function(){
+		$location.path('/');
 	}
 });
 
