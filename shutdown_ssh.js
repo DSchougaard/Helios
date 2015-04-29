@@ -1,8 +1,5 @@
-module.exports.shutdown = function(device){
+module.exports.shutdown = function(device, password){
 	var Client = require('ssh2').Client;
-
-
-	var passwords = require('./critical/password.json');
 
 
 	var conn = new Client();
@@ -19,7 +16,7 @@ module.exports.shutdown = function(device){
 				b += data.toString();
 				if(b.substr(-2) === ': ' ){
 					pwsent = true;
-					stream.write(passwords.sudo + '\n');
+					stream.write(password + '\n');
 					b = '';
 				}
 	  		}
@@ -31,7 +28,7 @@ module.exports.shutdown = function(device){
 	  host: '192.168.1.100',
 	  port: 22,
 	  username: 'daniel',
-	  password: passwords.shell
+	  password: password
 	});
 
 

@@ -6,6 +6,7 @@
 		"lodash":"~3.6.0",
 		"angularjs":"~1.2.25",
 		"angular-route":"~1.2.25",
+		"angular-bootstrap":"~0.12.0",
 		"font-awesome":"~ 4.3.0",
 		"bootstrap":"~3.3.4",
 		"jquery":"~2.1.3"

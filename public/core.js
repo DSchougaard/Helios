@@ -1,4 +1,4 @@
-var helios = angular.module('helios', ['ngRoute']);
+var helios = angular.module('helios', ['ngRoute', 'ui.bootstrap']);
 
 helios.config(function($routeProvider, $locationProvider){
 	$routeProvider
@@ -35,7 +35,7 @@ helios.controller('mainController', function($scope, $http) {
 	
 });
 
-helios.controller('listController', function($rootScope, $scope, $route, $http) {
+helios.controller('listController', function($rootScope, $scope, $route, $http, $modal) {
 	// Env Variables
 	$scope.loading = true;
 
@@ -52,42 +52,38 @@ helios.controller('listController', function($rootScope, $scope, $route, $http) 
 		});
 
 
-	$scope.interactWithDevice = function(device){
+	$scope.act = function(device){
 		console.log("Device: %j.", device);
 		var api_selection = '/api/device/';
 		if( device.online ){
-			api_selection = api_selection + "turnoff/";
+		
+			var instance = $modal.open({
+				templateUrl : 'pages/popups/password.html',
+				controller : 'passwordPromtController',
+			});
+
+			instance.result.then(function(password){
+				$http.post(api_selection + 'turnoff', {device: device, password: password})
+					.success(function(data){
+						console.log("Successfully turned off %j.", device);
+					})
+					.error(function(data){
+						console.log("Shutdown error!");
+					});
+			});
+
 		}else{
-			api_selection = api_selection + "wake/";
+			$http.get('/api/device/wake/' + device._id)
+				.success(function(data) {
+					console.log("Successfully sent magic packet to %s.", device.mac);
+				})
+				.error(function(data){
+					console.log("Error in sending magic packet to %s.", device.mac);
+				});
+
 		}
 
-		console.log('API Path : ' + api_selection); 
-
-		$http.get(api_selection + device._id)
-			.error( function(data){
-				console.log("Error: " + data);
-			});
 	}
-
-	$scope.wakeDevice = function(mac){
-		$http.get('/api/device/wake/' + mac)
-			.success(function(data) {
-				console.log("Successfully sent magic packet to %s.", mac);
-			})
-			.error(function(data){
-				console.log("Error in sending magic packet to %s.", mac);
-			});
-	}
-
-	$scope.turnOffDevice = function(mac){
-		$http.get('/api/device/turnoff/' + mac)
-			.success(function(data) {
-				console.log("Successfully turned off %s.", mac);
-			})
-			.error(function(data){
-				console.log("Error in turning off %s.", mac);
-			});
-	}	
 
 	$scope.delete = function(device){
 		console.log("Attempting to delete %j", device);
@@ -113,6 +109,15 @@ helios.controller('listController', function($rootScope, $scope, $route, $http) 
 
 });
 
+helios.controller('passwordPromtController', function($scope, $modalInstance){
+	$scope.ok = function(){
+		$modalInstance.close($scope.password);
+	}
+	$scope.cancel = function(){
+		$modalInstance.dismiss('cancel');
+	}
+})
+
 helios.controller('addDeviceController', function($rootScope, $scope, $location, $route, $http) {
 	$scope.submit = function(device){	
 		$http.post('/api/device', device)
@@ -136,8 +141,6 @@ helios.controller('addDeviceController', function($rootScope, $scope, $location,
 });
 
 helios.controller('editDeviceController', function($scope, $routeParams, $rootScope, $location, $route, $http){
-	//console.log("Editing device = " + editDevice.getID());
-
 	var device 	= $http.get('/api/device/' + $routeParams.id)
 		.success( function(data){
 			$scope.device 		= {};
