@@ -57,6 +57,17 @@ module.exports = function(app, db, device_collection){
 		});
 	});
 
+	app.get('/api/device/:id', function(req,res){
+		var collection = db.collection(device_collection);
+		var id = sanitize(req.params.id);
+		collection.find({ "_id" : new ObjectId(id) }).toArray( function(err, results){
+			if( results.length != 1 )
+				console.log("Funky find.");
+
+			res.json(results[0]);
+
+		});
+	})
 
 	app.get('/api/device/wake/:id', function(req, res){
 		var collection = db.collection(device_collection);
@@ -97,10 +108,10 @@ module.exports = function(app, db, device_collection){
 				return;
 			}
 
-			if( docs.length > 1 )
+			if( results.length > 1 )
 				console.log("Somehow more than one device with a unique ID was found. Using index 0.");
 
-			var device = docs[0];
+			var device = results[0];
 			shutdown_ssh.shutdown(device);
 			res.sendStatus(202);
 		});
@@ -143,6 +154,27 @@ module.exports = function(app, db, device_collection){
 				res.sendStatus(404);
 			}
 		});
+	});
+
+	app.put('/api/device/:id', function(req, res){
+		var collection = db.collection(device_collection);
+		var id = sanitize(req.params.id);
+
+		console.log("Put: %j.", req.body.device);
+
+		collection.update({"_id" : new ObjectId(id)}, req.body.device, function(err, result){
+			if(err){
+				console.log("Error: " + err);
+				res.sendStatus(500);
+				return;
+			}
+
+			if( result.result.n == 0 )
+				return res.sendStatus(404);
+
+			res.sendStatus(204);
+		});
+
 	});
 }
 

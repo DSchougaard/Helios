@@ -31,7 +31,10 @@ var app = express();
 var db_url = "mongodb://localhost:27017/helios";
 var device_collection = "devicecollection";
 
+
+//app.use('/components*', express.static(__dirname + '/public/components' ));
 app.use(express.static(__dirname + '/public')); 
+
 app.use(bodyParser.json());
 app.use(methodOverride());
 

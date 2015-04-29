@@ -19,15 +19,20 @@
 
 	<div class="btn-group inline pull-right">
 		<!-- Wake Device button -->
-		<button type="button" style="width:100px !important" class="btn btn-success" ng-class="device.online?'btn-danger':'btn-success'" ng-click="interactWithDevice(device)"> {{device.online==true?'Turn it off!':'Wake it!'}}</button>
+		<button type="button" style="width:100px !important;" class="btn btn-success" ng-class="device.online?'btn-danger':'btn-success'" ng-click="interactWithDevice(device)"> {{device.online==true?'Turn it off!':'Wake it!'}}</button>
 		<button type="button" class="btn dropdown-toggle btn-success" ng-class="device.online?'btn-danger':'btn-success'" data-toggle="dropdown" ariaexpanded="false">
 			<span class="caret"></span>
 			<span class="sr-only">Toggle Dropdown</span>
 		</button>
-		<input type="hidden" ng-nodel="device">
+		<!-- <input type="hidden" ng-nodel="device"> -->
 		<ul class="dropdown-menu" role="menu">
-			<li><a href="#">Update</a></li>
-			<li ng-click="delete(device)"><a href="#">Delete</a></li>
+			<!-- <li><a href="/update"> -->
+			<li><a href="/device/{{device._id}}/edit">
+				<i class="fa fa-pencil"></i> Edit</a>
+			</li>
+			<li ng-click="delete(device)">
+				<a href="#"><i class="fa fa-minus"></i> Delete</a>
+			</li>
 			<!-- <li class="divider"></li> -->
 		</ul>
 	</div>

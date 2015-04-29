@@ -2,18 +2,31 @@ var helios = angular.module('helios', ['ngRoute']);
 
 helios.config(function($routeProvider, $locationProvider){
 	$routeProvider
-
 		// Main View : List of Devices
 		.when('/', {
-			templateUrl		: '/pages/list.html'
+			templateUrl		: 'pages/list.html'
 		})
 
+		// View for Adding a device
 		.when('/add', {
-			templateUrl		: '/pages/add.html'
+			templateUrl		: 'pages/add.html',
+			controller 		: 'addDeviceController'
 		})
+
+		.when('/device/:id/edit', {
+			templateUrl		: 'pages/update.html',
+			controller 		: 'editDeviceController'
+		})
+
+		/*.when('/test/TESTID/edit',{
+			templateUrl 	: 'pages/update.html'
+		})*/
 
 		.when('/error', {
-			templateUrl		: '/pages/error.html'
+			templateUrl		: 'pages/error.html'
+		})
+		.otherwise({
+			redirectTo 		: 'pages/error.html'
 		});
 	$locationProvider.html5Mode(true)
 });
@@ -95,7 +108,7 @@ helios.controller('listController', function($rootScope, $scope, $route, $http) 
 	}
 
 	$scope.edit = function(device){
-
+		editDevice.setID(device);
 	}
 
 });
@@ -122,6 +135,56 @@ helios.controller('addDeviceController', function($rootScope, $scope, $location,
 	}
 });
 
+helios.controller('editDeviceController', function($scope, $routeParams, $rootScope, $location, $route, $http){
+	//console.log("Editing device = " + editDevice.getID());
+
+	var device 	= $http.get('/api/device/' + $routeParams.id)
+		.success( function(data){
+			$scope.device 		= {};
+			$scope.device._id 	= data._id;
+			$scope.device.name 	= data.name;
+			$scope.device.ip 	= data.ip;
+			$scope.device.mac 	= data.mac;
+		})
+		.error(function(data){
+			console.log("Error in getting device to edit.");
+			$location.path('/error');
+		});
+
+	$scope.submit = function(){
+
+		console.log("Attempting to update device with ID " + $scope.device._id);
+
+		var newDevice = {
+			name: $scope.device.name,
+			ip 	: $scope.device.ip,
+			mac : $scope.device.mac,
+		};
+
+		$http.put('api/device/'+$scope.device._id, {device: newDevice})
+			.success(function(data){
+				console.log("Updated device!");
+				
+				newDevice._id = $scope.device._id;
+
+				// Quickly remove the old device, to avoid full reload.
+				_.remove($rootScope.devices, function(d){
+					return d._id === $scope.device._id;
+				})
+
+				// Push newly updated device to the stack of devices
+				$rootScope.devices.push(newDevice);
+
+				// Redirect to main and reload global device list.
+				$location.path('/');
+				$route.reload();
+			})
+			.error(function(data, status){
+				console.log("Error: " + data);
+				$location.path('/error');
+			});
+	}
+});
 
 
 

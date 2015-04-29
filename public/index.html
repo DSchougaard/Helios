@@ -5,6 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Project Helios</title>
+        <base href="/">
 
         <!-- JS Components installed using Bower -->
         <script src="components/jquery/dist/jquery.min.js"></script>
@@ -18,10 +19,10 @@
         <link rel="stylesheet" href="components/bootstrap/dist/css/bootstrap-theme.min.css">
         <link rel="stylesheet" href="components/font-awesome/css/font-awesome.min.css">
 
-
-
-
+        <!-- Angular Controller -->
         <script src="core.js"></script>
+        <link rel="stylesheet" href="style.css">
+
     </head>
     <body ng-controller="listController" style="background-color:#ECECEC">
         <header>
@@ -29,7 +30,7 @@
                 <!-- Center the shit -->
                 <div class="container col-md-8 col-md-offset-2">
                     
-
+                    <!-- App Name / Logo -->
                     <div class="navbar-header">
                         <button type="button" class="navbar-toggle" ng-init="navbar_collapsed = true" ng-click="navbar_collapsed = !navbar_collapsed">
                             <span class="sr-only">Toggle navigation</span>
@@ -43,12 +44,10 @@
                     <!-- Elements in menu -->
                     <div class="collapse navbar-collapse"  ng-class="{'in':!navbar_collapsed}">
                         <ul class="nav navbar-nav navbar-right" ng-click="navbar_collapsed = true">
-                            <li><a href="#" ><i class="fa fa-home"></i> Home</a></li>
-                            <li><a href="#add"><i class="fa fa-shield"></i> Add</a></li>
+                            <li><a href="/" ><i class="fa fa-home"></i> Home</a></li>
+                            <li><a href="/add"><i class="fa fa-plus"></i> Add</a></li>
                         </ul>
                     </div>
-
-
 
                 </div>
             </nav>
