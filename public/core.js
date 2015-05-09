@@ -14,13 +14,9 @@ helios.config(function($routeProvider, $locationProvider){
 		})
 
 		.when('/device/:id/edit', {
-			templateUrl		: 'pages/update.html',
+			templateUrl		: 'pages/add.html',
 			controller 		: 'editDeviceController'
 		})
-
-		/*.when('/test/TESTID/edit',{
-			templateUrl 	: 'pages/update.html'
-		})*/
 
 		.when('/error', {
 			templateUrl		: 'pages/error.html'
@@ -46,6 +42,7 @@ helios.controller('listController', function($rootScope, $scope, $route, $http, 
 		.success(function(data) {
 			$rootScope.devices = data;
 			$scope.loading = false;
+			console.log("%j", data);
 		})
 		.error(function(data) {
 		    console.log('Error: ' + data);
@@ -59,6 +56,11 @@ helios.controller('listController', function($rootScope, $scope, $route, $http, 
 			var instance = $modal.open({
 				templateUrl : 'pages/popups/password.html',
 				controller : 'passwordPromtController',
+				resolve: {
+					promtForUsername : function(){
+						return !device.store_ssh_username;
+					}
+				}
 			});
 
 			instance.result.then(function(details){
@@ -108,7 +110,8 @@ helios.controller('listController', function($rootScope, $scope, $route, $http, 
 
 });
 
-helios.controller('passwordPromtController', function($scope, $modalInstance){
+helios.controller('passwordPromtController', function($scope, $modalInstance, promtForUsername){
+	$scope.promtForUsername = promtForUsername;
 	$scope.ok = function(){
 		$modalInstance.close({username: $scope.username, password:$scope.password});
 	}
@@ -118,6 +121,10 @@ helios.controller('passwordPromtController', function($scope, $modalInstance){
 })
 
 helios.controller('addDeviceController', function($rootScope, $scope, $location, $route, $http) {
+	$scope.OKButton = "Submit";
+	$scope.device = {}
+	$scope.device.store_ssh_username = false;
+
 	$scope.submit = function(device){	
 		$http.post('/api/device', device)
 		.success( function(data, status, headers, config){		
@@ -140,6 +147,7 @@ helios.controller('addDeviceController', function($rootScope, $scope, $location,
 });
 
 helios.controller('editDeviceController', function($scope, $routeParams, $rootScope, $location, $route, $http){
+	$scope.OKButton = "Update";
 	var device 	= $http.get('/api/device/' + $routeParams.id)
 		.success( function(data){
 			$scope.device 		= {};
@@ -147,6 +155,9 @@ helios.controller('editDeviceController', function($scope, $routeParams, $rootSc
 			$scope.device.name 	= data.name;
 			$scope.device.ip 	= data.ip;
 			$scope.device.mac 	= data.mac;
+			$scope.device.store_ssh_username = data.store_ssh_username;
+			if( $scope.device.store_ssh_username )
+				$scope.device.ssh_username = data.ssh_username;
 		})
 		.error(function(data){
 			console.log("Error in getting device to edit.");
@@ -159,7 +170,12 @@ helios.controller('editDeviceController', function($scope, $routeParams, $rootSc
 			name: $scope.device.name,
 			ip 	: $scope.device.ip,
 			mac : $scope.device.mac,
+			store_ssh_username : $scope.device.store_ssh_username
 		};
+		if( newDevice.store_ssh_username )
+			newDevice.ssh_username = $scope.device.ssh_username;
+
+
 
 		$http.put('api/device/'+$scope.device._id, {device: newDevice})
 			.success(function(data){

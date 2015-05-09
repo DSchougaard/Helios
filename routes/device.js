@@ -142,6 +142,7 @@ module.exports = function(app, db, device_collection){
 				console.log(err);
 				res.sendStatus(500)
 			}else{
+				console.log("POST: %j.", device);
 				// Reply the created object to the client
 				res.status(202).json(device);
 			}

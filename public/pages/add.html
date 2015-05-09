@@ -1,6 +1,6 @@
 <!-- <div ng-controller="addDeviceController"> -->
 	<form class="form-horizontal" >
-    <legend> Add New Machine </legend>
+    <legend> Device Details </legend>
     <!-- Machine Name -->
     <div class="form-group">
         <label for="name" class="control-label col-md-2">Machine Name</label>
@@ -17,7 +17,7 @@
         </div>
     </div>
 
-    <!-- IP Address -->
+    <!-- Mac Address -->
     <div class="form-group">
         <label for="mac" class="control-label col-md-2">Mac Address</label>
         <div class="col-md-10">
@@ -25,11 +25,31 @@
         </div>
     </div>
 
+    <legend> Authentication Details </legend>
+
+    <div class="checkbox">
+        <label>
+            <input type="checkbox" ng-model="device.store_ssh_username">
+            Store SSH username.
+        </label>
+    </div>
+
+    <!-- SSH Username -->
+    <div class="form-group" ng-show="device.store_ssh_username">
+        <label for="ip" class="control-label col-md-2">SSH Username</label>
+        <div class="col-md-10">
+            <input type="text" class="form-control" ng-model="device.ssh_username" placeholder="SSH Username">
+        </div>
+    </div>
+
+
+
+
     <!-- Buttons -->
     <div class="form-group">
         <label class="control-label col-md-2"></label>
         <div class="col-md-10 btn-group pull-right" role="group" aria-label="..?">
-            <button class="btn btn-success" ng-click="submit(device)">Submit</button>
+            <button class="btn btn-success" ng-click="submit(device)">{{OKButton}}</button>
             <button class="btn btn-danger" ng-click="cancel()">Cancel</button>
         </div>
     </div>
