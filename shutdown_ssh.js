@@ -1,6 +1,5 @@
-module.exports.shutdown = function(device, password){
+module.exports.shutdown = function(device, username, password){
 	var Client = require('ssh2').Client;
-
 
 	var conn = new Client();
 	conn.on('ready', function() {
@@ -25,11 +24,9 @@ module.exports.shutdown = function(device, password){
 	    });
 	  });
 	}).connect({
-	  host: '192.168.1.100',
+	  host: device.ip,
 	  port: 22,
-	  username: 'daniel',
+	  username: username,
 	  password: password
 	});
-
-
 };

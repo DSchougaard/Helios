@@ -26,14 +26,31 @@ var https = require('https');
 	https://github.com/sindresorhus/awesome-nodejs#logging
 */
 
+
+var config = require("./config.json");
+if( config.ssl_enabled === true)
+
+
+
+
+
 // Database Variables
-var db_url = "mongodb://localhost:27017/helios";
 var device_collection = "devicecollection";
 
 // Certificates
-var privateKey = fs.readFileSync('ssl/helios-key.pem', 'utf8');
-var certificate = fs.readFileSync('ssl/helios-cert.pem', 'utf8');
-var credentials = {key: privateKey, cert: certificate };
+if(  config.ssl_enabled === true ){
+	console.log("Bootstrapping Helios using SSL.");
+	var privateKey = fs.readFileSync(config.ssl_key, 'utf8');
+	var certificate = fs.readFileSync(config.ssl_cert, 'utf8');
+	var credentials = {key: privateKey, cert: certificate };
+}
+
+if( config.ssl_enabled === false ){
+	console.log("Warning: Unsafe operating environment!");
+	console.log("Functionality not implemented.");
+	process.exit();
+}
+
 
 //  Server setup
 var app = express();
@@ -43,7 +60,9 @@ var app = express();
 app.use(express.static(__dirname + '/public')); 
 
 app.use(bodyParser.json());
-app.use(methodOverride());
+app.use(methodOverride()); 
+
+
 
 var forceSSL = function(req, res, next){
 	if( req.headers['x-forwarded-proto'] !== 'https' ){
@@ -54,8 +73,11 @@ var forceSSL = function(req, res, next){
 };
 
 
+	
+
+
 // Connect to DB
-MongoClient.connect(db_url, function(err, db) {
+MongoClient.connect(config.db_url, function(err, db) {
 	console.log("Connected to DB.");
 	if(err) throw err;
 	
@@ -67,7 +89,7 @@ MongoClient.connect(db_url, function(err, db) {
 
 	app.use(forceSSL);
 
-	secureServer.listen(8888, '0.0.0.0', function(){
+	secureServer.listen(config.ssl_port, '0.0.0.0', function(){
 		console.log('Project Helios initated on port ' + secureServer.address().port + '.');
 	});
 });

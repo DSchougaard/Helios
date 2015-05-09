@@ -100,10 +100,11 @@ module.exports = function(app, db, device_collection){
 	});
 
 	app.post('/api/device/turnoff', function(req, res){
-		var collection = db.collection(device_collection);
-		var device = req.body.device;
-		var password = req.body.password;
-		var id = req.body.device._id;
+		var collection 	= db.collection(device_collection);
+		var device 		= req.body.device;
+		var username	= req.body.username;
+		var password 	= req.body.password;
+		var id 			= req.body.device._id;
 
 		collection.find({ "_id" : new ObjectId(id) }).toArray( function(err, results){
 			if( err ){
@@ -115,29 +116,12 @@ module.exports = function(app, db, device_collection){
 				console.log("Somehow more than one device with a unique ID was found. Using index 0.");
 
 			var device = results[0];
-			shutdown_ssh.shutdown(device,password);
+			shutdown_ssh.shutdown(device, username, password);
 			res.sendStatus(202);
 		});
 
 	});
 
-	app.get('/api/device/turnoff/:id', function(req, res){
-		var collection = db.collection(device_collection);
-		var id = sanitize(req.params.id);
-		collection.find({ "_id" : new ObjectId(id) }).toArray( function(err, results){
-			if( err ){
-				res.sendStatus(400);
-				return;
-			}
-
-			if( results.length > 1 )
-				console.log("Somehow more than one device with a unique ID was found. Using index 0.");
-
-			var device = results[0];
-			shutdown_ssh.shutdown(device);
-			res.sendStatus(202);
-		});
-	});
 
 	app.post('/api/device', function(req, res){
 		var collection = db.collection(device_collection);

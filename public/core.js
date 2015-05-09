@@ -53,7 +53,6 @@ helios.controller('listController', function($rootScope, $scope, $route, $http, 
 
 
 	$scope.act = function(device){
-		console.log("Device: %j.", device);
 		var api_selection = '/api/device/';
 		if( device.online ){
 		
@@ -62,8 +61,8 @@ helios.controller('listController', function($rootScope, $scope, $route, $http, 
 				controller : 'passwordPromtController',
 			});
 
-			instance.result.then(function(password){
-				$http.post(api_selection + 'turnoff', {device: device, password: password})
+			instance.result.then(function(details){
+				$http.post(api_selection + 'turnoff', {device: device, username:details.username,  password: details.password})
 					.success(function(data){
 						console.log("Successfully turned off %j.", device);
 					})
@@ -111,7 +110,7 @@ helios.controller('listController', function($rootScope, $scope, $route, $http, 
 
 helios.controller('passwordPromtController', function($scope, $modalInstance){
 	$scope.ok = function(){
-		$modalInstance.close($scope.password);
+		$modalInstance.close({username: $scope.username, password:$scope.password});
 	}
 	$scope.cancel = function(){
 		$modalInstance.dismiss('cancel');
