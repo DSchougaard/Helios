@@ -11,8 +11,8 @@ WoL service for a server.
 
 ### Installing Helios
 These instructions assumes that all dependencies are installed and are functioning
-sudo apt-get update
-sudo apt-get install git-core git build-essential openssl
+* sudo apt-get update
+* sudo apt-get install git-core git build-essential openssl
 
 
 
