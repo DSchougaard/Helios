@@ -4,7 +4,8 @@ helios.config(function($routeProvider, $locationProvider){
 	$routeProvider
 		// Main View : List of Devices
 		.when('/', {
-			templateUrl		: 'pages/list.html'
+			templateUrl		: 'pages/list.html',
+			controller 		: 'listController'
 		})
 
 		// View for Adding a device
@@ -21,6 +22,7 @@ helios.config(function($routeProvider, $locationProvider){
 		.when('/error', {
 			templateUrl		: 'pages/error.html'
 		})
+
 		.otherwise({
 			redirectTo 		: 'pages/error.html'
 		});
@@ -174,7 +176,6 @@ helios.controller('editDeviceController', function($scope, $routeParams, $rootSc
 		};
 		if( newDevice.store_ssh_username )
 			newDevice.ssh_username = $scope.device.ssh_username;
-
 
 
 		$http.put('api/device/'+$scope.device._id, {device: newDevice})
