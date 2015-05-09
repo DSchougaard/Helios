@@ -31,3 +31,6 @@ public/components
 # Critical private directory
 critical
 ssl
+
+# Linux is Stupid
+*.fuse*
