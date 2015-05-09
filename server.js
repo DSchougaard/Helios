@@ -28,11 +28,6 @@ var https = require('https');
 
 
 var config = require("./config.json");
-if( config.ssl_enabled === true)
-
-
-
-
 
 // Database Variables
 var device_collection = "devicecollection";
@@ -43,26 +38,20 @@ if(  config.ssl_enabled === true ){
 	var privateKey = fs.readFileSync(config.ssl_key, 'utf8');
 	var certificate = fs.readFileSync(config.ssl_cert, 'utf8');
 	var credentials = {key: privateKey, cert: certificate };
-}
-
-if( config.ssl_enabled === false ){
+}else{
 	console.log("Warning: Unsafe operating environment!");
 	console.log("Functionality not implemented.");
 	process.exit();
 }
 
-
 //  Server setup
 var app = express();
-
 
 //app.use('/components*', express.static(__dirname + '/public/components' ));
 app.use(express.static(__dirname + '/public')); 
 
 app.use(bodyParser.json());
 app.use(methodOverride()); 
-
-
 
 var forceSSL = function(req, res, next){
 	if( req.headers['x-forwarded-proto'] !== 'https' ){
@@ -71,10 +60,6 @@ var forceSSL = function(req, res, next){
 	}
 	return next();
 };
-
-
-	
-
 
 // Connect to DB
 MongoClient.connect(config.db_url, function(err, db) {
@@ -86,10 +71,9 @@ MongoClient.connect(config.db_url, function(err, db) {
 
 	// HTTPS and HTTP servers, using forceSSL
 	var secureServer = https.createServer(credentials, app);
-
 	app.use(forceSSL);
 
 	secureServer.listen(config.ssl_port, '0.0.0.0', function(){
 		console.log('Project Helios initated on port ' + secureServer.address().port + '.');
 	});
-});
+})
