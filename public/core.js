@@ -29,25 +29,97 @@ helios.config(function($routeProvider, $locationProvider){
 	$locationProvider.html5Mode(true)
 });
 
+helios.factory('DeviceBroker', function($http, $q){
+	var broker = {};
+	var devices = []
+	timestamp = 0;
+
+	broker.update = function(){
+		return $http.get('/api/devices')
+			.success(function(data){
+				devices 	= data;
+				timestamp 	= Date.now();
+ 				return true;
+			})
+			.error(function(data){
+				return $q.reject(data);
+			});
+	}
+
+	broker.getAll = function(){
+		var deferred = $q.defer();
+		if( Date.now() - timestamp > 120000 ){ // 2 mins
+			console.log("DeviceBroker::GetAll::Data too old. Fetching new.");
+			broker.update()
+				.success(function(data){
+					deferred.resolve(devices);
+				})
+				.error(function(data){
+					deferred.reject(data);
+				});		
+		}else{
+			console.log("DeviceBroker::GetAll::Reusing data.");
+			deferred.resolve(devices);
+		}
+		return deferred.promise;
+	}
+
+	broker.setOnline = function(device, online){
+		_.find(devices, {'_id': device._id}).online = online;
+	}
+
+	broker.add = function(device){
+		if( _.contains(devices, device, 0) )
+			return;
+
+		devices.push(device);
+	}
+
+	broker.remove = function(device){
+		if( !_.contains(devices, device, 0) )
+			return;
+
+		_.remove(devices, function(d){
+			return d._id === device._id;
+		})
+	}
+
+	broker.edit = function(device){
+		console.log("New device: %j.", device);
+		console.log("Before edit: %j.", devices);
+
+		// Quickly remove the old device, to avoid full reload.
+		_.remove(devices, function(d){
+			return d._id === device._id;
+		})
+
+		// Push newly updated device to the stack of devices
+		devices.push(device);
+		console.log("After edit: %j.", devices);
+
+	}
+
+	return broker;
+})
+	
+
 helios.controller('mainController', function($scope, $http) {
 	
 });
 
-helios.controller('listController', function($rootScope, $scope, $route, $http, $modal) {
+
+
+helios.controller('listController', function($scope, $route, $http, $modal, DeviceBroker) {
 	// Env Variables
 	$scope.loading = true;
 
 	// Setup lodash
 	$scope._ = _;
 
-	$http.get('/api/devices')
-		.success(function(data) {
-			$rootScope.devices = data;
+	DeviceBroker.getAll()
+		.then(function(response){
 			$scope.loading = false;
-			console.log("%j", data);
-		})
-		.error(function(data) {
-		    console.log('Error: ' + data);
+			$scope.devices = response;
 		});
 
 
@@ -69,6 +141,7 @@ helios.controller('listController', function($rootScope, $scope, $route, $http, 
 				$http.post(api_selection + 'turnoff', {device: device, username:details.username,  password: details.password})
 					.success(function(data){
 						console.log("Successfully turned off %j.", device);
+						DeviceBroker.setOnline(device, false);
 					})
 					.error(function(data){
 						console.log("Shutdown error!");
@@ -78,10 +151,11 @@ helios.controller('listController', function($rootScope, $scope, $route, $http, 
 		}else{
 			$http.get('/api/device/wake/' + device._id)
 				.success(function(data) {
-					console.log("Successfully sent magic packet to %s.", device.mac);
+					console.log("Successfully sent magic packet to js.", device);
+					DeviceBroker.setOnline(device, true);
 				})
 				.error(function(data){
-					console.log("Error in sending magic packet to %s.", device.mac);
+					console.log("Error in sending magic packet to %j.", device);
 				});
 
 		}
@@ -92,14 +166,7 @@ helios.controller('listController', function($rootScope, $scope, $route, $http, 
 		console.log("Attempting to delete %j", device);
 		$http.delete('/api/device/' + device._id)
 			.success(function(data){
-
-				// Quickly remove the deleted device, to avoid full reload.
-				_.remove($rootScope.devices, function(d){
-					return d._id === device._id;
-				})
-				
-				// Reloads main view, using data already in "devices" list.
-				$route.reload();
+				DeviceBroker.remove(device)
 			})
 			.error(function(data){
 				console.log("Error: " + data);
@@ -112,6 +179,18 @@ helios.controller('listController', function($rootScope, $scope, $route, $http, 
 
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
 helios.controller('passwordPromtController', function($scope, $modalInstance, promtForUsername){
 	$scope.promtForUsername = promtForUsername;
 	$scope.ok = function(){
@@ -122,7 +201,7 @@ helios.controller('passwordPromtController', function($scope, $modalInstance, pr
 	}
 })
 
-helios.controller('addDeviceController', function($rootScope, $scope, $location, $route, $http) {
+helios.controller('addDeviceController', function($scope, $location, $route, $http, DeviceBroker) {
 	$scope.OKButton = "Submit";
 	$scope.device = {}
 	$scope.device.store_ssh_username = false;
@@ -130,12 +209,8 @@ helios.controller('addDeviceController', function($rootScope, $scope, $location,
 	$scope.submit = function(device){	
 		$http.post('/api/device', device)
 		.success( function(data, status, headers, config){		
-			// Push newly created device to the stack of devices
-			$rootScope.devices.push(data);
-
-			// Redirect to main and reload global device list.
+			DeviceBroker.add(data);
 			$location.path('/');
-			$route.reload();
 		})
 		.error( function(data, status, headers, config){
 			console.log("Error!");
@@ -148,7 +223,7 @@ helios.controller('addDeviceController', function($rootScope, $scope, $location,
 	}
 });
 
-helios.controller('editDeviceController', function($scope, $routeParams, $rootScope, $location, $route, $http){
+helios.controller('editDeviceController', function($scope, $routeParams, $rootScope, $location, $route, $http, DeviceBroker){
 	$scope.OKButton = "Update";
 	var device 	= $http.get('/api/device/' + $routeParams.id)
 		.success( function(data){
@@ -180,18 +255,9 @@ helios.controller('editDeviceController', function($scope, $routeParams, $rootSc
 
 		$http.put('api/device/'+$scope.device._id, {device: newDevice})
 			.success(function(data){
-				console.log("Updated device!");
+				console.log("Updated device! %j", $scope.device);
 				
-				newDevice._id = $scope.device._id;
-
-				// Quickly remove the old device, to avoid full reload.
-				_.remove($rootScope.devices, function(d){
-					return d._id === $scope.device._id;
-				})
-
-				// Push newly updated device to the stack of devices
-				$rootScope.devices.push(newDevice);
-
+				DeviceBroker.edit($scope.device);
 				// Redirect to main
 				$location.path('/');
 			})
