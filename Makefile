@@ -16,5 +16,7 @@ install:
 	npm install
 	bower install
 
-db:
+db_conf:
 	mkdir /data/db
+	mkdir /home/mongodb
+	cp boot/mongodb.sh /etc/init.d/mongodb

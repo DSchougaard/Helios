@@ -24,9 +24,18 @@ module.exports.shutdown = function(device, username, password){
 	    });
 	  });
 	}).connect({
+		host: device.ip,
+		port: 22,
+		username: username,
+		privateKey: require('fs').readFileSync('~.ssh/id_rsa.pub');
+	});
+
+
+
+	/*connect({
 	  host: device.ip,
 	  port: 22,
 	  username: username,
 	  password: password
-	});
+	});*/
 };
