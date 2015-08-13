@@ -63,9 +63,10 @@ var forceSSL = function(req, res, next){
 
 // Connect to DB
 MongoClient.connect(config.db_url, function(err, db) {
-	console.log("Connected to DB.");
 	if(err) throw err;
 	
+	console.log("Connected to DB.");
+
 	// Helios Routes
 	require('./app')(app, db, device_collection);
 

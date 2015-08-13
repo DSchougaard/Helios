@@ -15,3 +15,6 @@ install:
 	npm install -g bower
 	npm install
 	bower install
+
+db:
+	mkdir /data/db
