@@ -12,3 +12,6 @@ cert:
 
 install:
 	echo 'Installing Helios'
+	npm install -g bower
+	npm install
+	bower install
