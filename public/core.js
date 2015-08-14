@@ -66,7 +66,7 @@ helios.factory('DeviceBroker', function($http, $q){
 	}
 
 	broker.setOnline = function(device, online){
-		_.find(devices, {'_id': device._id}).online = online;
+		_.find(devices, {'id': device.id}).online = online;
 	}
 
 	broker.add = function(device){
@@ -81,7 +81,7 @@ helios.factory('DeviceBroker', function($http, $q){
 			return;
 
 		_.remove(devices, function(d){
-			return d._id === device._id;
+			return d.id === device.id;
 		})
 	}
 
@@ -91,7 +91,7 @@ helios.factory('DeviceBroker', function($http, $q){
 
 		// Quickly remove the old device, to avoid full reload.
 		_.remove(devices, function(d){
-			return d._id === device._id;
+			return d.id === device.id;
 		})
 
 		// Push newly updated device to the stack of devices
@@ -150,7 +150,7 @@ helios.controller('listController', function($scope, $route, $http, $modal, Devi
 			});
 
 		}else{
-			$http.get('/api/device/wake/' + device._id)
+			$http.get('/api/device/wake/' + device.id)
 				.success(function(data) {
 					console.log("Successfully sent magic packet to js.", device);
 					DeviceBroker.setOnline(device, true);
@@ -165,7 +165,7 @@ helios.controller('listController', function($scope, $route, $http, $modal, Devi
 
 	$scope.delete = function(device){
 		console.log("Attempting to delete %j", device);
-		$http.delete('/api/device/' + device._id)
+		$http.delete('/api/device/' + device.id)
 			.success(function(data){
 				DeviceBroker.remove(device)
 			})
@@ -229,7 +229,7 @@ helios.controller('editDeviceController', function($scope, $routeParams, $rootSc
 	var device 	= $http.get('/api/device/' + $routeParams.id)
 		.success( function(data){
 			$scope.device 		= {};
-			$scope.device._id 	= data._id;
+			$scope.device.id 	= data.id;
 			$scope.device.name 	= data.name;
 			$scope.device.ip 	= data.ip;
 			$scope.device.mac 	= data.mac;
@@ -243,7 +243,7 @@ helios.controller('editDeviceController', function($scope, $routeParams, $rootSc
 		});
 
 	$scope.submit = function(){
-		console.log("Attempting to update device with ID " + $scope.device._id);
+		console.log("Attempting to update device with ID " + $scope.device.id);
 		var newDevice = {
 			name: $scope.device.name,
 			ip 	: $scope.device.ip,
@@ -254,7 +254,7 @@ helios.controller('editDeviceController', function($scope, $routeParams, $rootSc
 			newDevice.ssh_username = $scope.device.ssh_username;
 
 
-		$http.put('api/device/'+$scope.device._id, {device: newDevice})
+		$http.put('api/device/'+$scope.device.id, {device: newDevice})
 			.success(function(data){
 				console.log("Updated device! %j", $scope.device);
 				
