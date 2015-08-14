@@ -86,7 +86,7 @@ module.exports = function(app, db, device_collection){
 		console.log("API::Device::Wake::"+id);
 
 		db.all("SELECT mac FROM devices WHERE id="+id, function(err, rows){
-			if(err){
+			if(err){ 
 				res.sendStatus(400);
 				return;
 			}
@@ -135,11 +135,9 @@ module.exports = function(app, db, device_collection){
 
 
 	app.post('/api/device', function(req, res){
-		var collection = db.collection(device_collection);
 		var device = req.body;
 
-		console.log("isIP : " + validator.isIP(device.ip, 4));
-		console.log("isAlphanumeric : " + validator.isAlphanumeric(device.name));
+		 db.run("INSERT into devices(name,ip,mac, auth_type) VALUES ('Test', '1.1.1.1', 'ff.ff.ff.ff.ff.00', 'cert')");
 
 		// Validate the input
 		if(	!validator.isIP(device.ip, 4)
@@ -148,28 +146,23 @@ module.exports = function(app, db, device_collection){
 			res.sendStatus(400);
 			return;
 		}
-		collection.insert(device, function(err, records){
-			if(err){
-				console.log(err);
-				res.sendStatus(500)
-			}else{
-				console.log("POST: %j.", device);
-				// Reply the created object to the client
-				res.status(202).json(device);
-			}
-		});
+
+		var stmt = db.prepare("INSERT INTO devices(name, ip, mac, auth_type) VALUES (?,?,?,?)");
+		stmt.run(device.name, device.ip, device.mac, 'password'); // Hard coding authtype first.
+		stmt.finalize();
+
+
 	});
 
 	app.delete('/api/device/:id', function(req, res){
-		var collection = db.collection(device_collection);
 		var id = sanitize(req.params.id);
-		collection.remove({ "_id" : new ObjectId(id)}, function(err, result){
-			if(result.result.n === 1){
-				console.log("Device was deleted.");
-				res.sendStatus(200);
-			}else{
-				console.log("Failed to delete device.");
+
+		db.run("DELETE FROM devices WHERE id="+id, function(err){
+			if(err){
+				console.log("DB Error occured");
 				res.sendStatus(404);
+			}else{
+				res.sendStatus(200);
 			}
 		});
 	});
