@@ -66,26 +66,22 @@ var forceSSL = function(req, res, next){
 var sqlite3 = require('sqlite3').verbose();
 var dbfile = 'helios.db';
 var db = new sqlite3.Database(dbfile);
-var check;
+console.log("Connected to DB.");
+var createQueries = require("./queries.js");
+db.run(createQueries.createDeviceTable);
+db.run(createQueries.createPasswordTable);
+db.run(createQueries.createCertTable);
+console.log("DB init successful.");
 
-db.serialize(function() {
-	console.log("Connected to DB.");
-	var createQueries = require("./queries.js");
-	db.run(createQueries.createDeviceTable);
-  	db.run(createQueries.createPasswordTable);
-  	db.run(createQueries.createCertTable);
-	console.log("DB init successful.");
+// Helios Routes
+require('./app')(app, db, device_collection);
 
-	// Helios Routes
-	require('./app')(app, db, device_collection);
+// HTTPS and HTTP servers, using forceSSL
+var secureServer = https.createServer(credentials, app);
+app.use(forceSSL);
 
-	// HTTPS and HTTP servers, using forceSSL
-	var secureServer = https.createServer(credentials, app);
-	app.use(forceSSL);
-
-	secureServer.listen(config.ssl_port, '0.0.0.0', function(){
-		console.log('Project Helios initated on port ' + secureServer.address().port + '.');
-	});
+secureServer.listen(config.ssl_port, '0.0.0.0', function(){
+	console.log('Project Helios initated on port ' + secureServer.address().port + '.');
 });
 
 
