@@ -99,28 +99,7 @@ module.exports = function(app, db, device_collection){
 				res.sendStatus(503);
 			}
 
-			console.log("DB results:");
-			console.log(rows);
-
-		});
-
-		return;
-		collection.find({ "_id" : new ObjectId(id) }).toArray( function(err, results){
-			if( err ){
-				res.sendStatus(400);
-				return;
-			}
-
-			if( results.length > 1 )
-				console.log("Somehow more than one device with a unique ID was found. Using index 0.");
-
-			if( results.length === 0 ){
-				console.log("No device was found.");
-				res.sendStatus(503);
-			}
-
-			var device = results[0];
-			wol.wake(device.mac, function(error){
+			wol.wake(rows[0].mac, function(error){
 				if( error ){
 					// Error in waking device
 					console.log("WOL :: Can't wake device - " + device.mac);
@@ -129,7 +108,9 @@ module.exports = function(app, db, device_collection){
 					res.sendStatus(202);
 				}	
 			});
+
 		});
+		
 	});
 
 	app.post('/api/device/turnoff', function(req, res){
