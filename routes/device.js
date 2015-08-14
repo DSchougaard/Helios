@@ -167,23 +167,22 @@ module.exports = function(app, db, device_collection){
 		});
 	});
 
+
 	app.put('/api/device/:id', function(req, res){
-		var collection = db.collection(device_collection);
 		var id = sanitize(req.params.id);
 
 		console.log("Put: %j.", req.body.device);
 
-		collection.update({"_id" : new ObjectId(id)}, req.body.device, function(err, result){
+		db.run("UPDATE devices SET name = ?, ip = ?, mac = ?, auth_type = ? WHERE id = ?", 
+		req.body.device.name, req.body.device.ip, req.body.device.mac, "password", id, function(err){
 			if(err){
 				console.log("Error: " + err);
 				res.sendStatus(500);
 				return;
+			}else{
+				res.sendStatus(204);
 			}
 
-			if( result.result.n == 0 )
-				return res.sendStatus(404);
-
-			res.sendStatus(204);
 		});
 
 	});
