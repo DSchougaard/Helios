@@ -43,7 +43,7 @@ module.exports = function(app, db, device_collection){
 			console.log("test : " + isAlive);
 		});
 		*/
-		var collection = db.collection(device_collection);
+		/*var collection = db.collection(device_collection);
 		collection.find().toArray(function(err, docs){
 
 			var method_calls = [];
@@ -53,6 +53,21 @@ module.exports = function(app, db, device_collection){
 
 			Q.all(method_calls).then(function(promises){
 				res.json(docs);
+			});
+		});*/
+
+
+		db.all("SELECT * from devices;",function(err, rows){
+
+			if(err) throw err;
+
+			var method_calls = [];
+			for( var i = 0 ; i < rows.length ; i++){
+				method_calls.push( ping_host(rows[i]) );
+			}
+
+			Q.all(method_calls).then(function(promises){
+				res.json(rows);
 			});
 		});
 	});
