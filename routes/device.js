@@ -38,25 +38,6 @@ function ping_host(device){
 
 module.exports = function(app, db, device_collection){
 	app.get('/api/devices', function(req, res){
-		/*
-		ping.sys.probe("192.168.1.148", function(isAlive){
-			console.log("test : " + isAlive);
-		});
-		*/
-		/*var collection = db.collection(device_collection);
-		collection.find().toArray(function(err, docs){
-
-			var method_calls = [];
-			for( var i = 0 ; i < docs.length ; i++){
-				method_calls.push( ping_host(docs[i]) );
-			}
-
-			Q.all(method_calls).then(function(promises){
-				res.json(docs);
-			});
-		});*/
-
-
 		db.all("SELECT * from devices;",function(err, rows){
 
 			if(err) throw err;
@@ -73,16 +54,26 @@ module.exports = function(app, db, device_collection){
 	});
 
 	app.get('/api/device/:id', function(req,res){
-		var collection = db.collection(device_collection);
 		var id = sanitize(req.params.id);
-		collection.find({ "_id" : new ObjectId(id) }).toArray( function(err, results){
-			if( results.length != 1 )
-				console.log("Funky find.");
 
-			res.json(results[0]);
+		db.all("SELECT name, ip, mac FROM devices WHERE id= " + id, function(err, rows){
+			if(err){
+				console.log("Device::GET::DB Err");
+				console.log(err);
+				return;
+			}
 
+			if( rows.length == 0 ){
+				console.log("Device::GET:: ID not found.");
+				return;
+			}
+
+			if( rows.length > 1 ){
+				console.log("Device::GET::Get on ID returned more than one row.");
+			}
+			res.json(rows[0]);
 		});
-	})
+	});
 
 	app.get('/api/device/wake/:id', function(req, res){
 		var collection = db.collection(device_collection);
