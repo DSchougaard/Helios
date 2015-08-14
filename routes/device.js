@@ -42,6 +42,9 @@ module.exports = function(app, db, device_collection){
 
 			if(err) throw err;
 
+			console.log("API/DEVICES:: RESULTS");
+			console.log(rows);
+
 			var method_calls = [];
 			for( var i = 0 ; i < rows.length ; i++){
 				method_calls.push( ping_host(rows[i]) );
@@ -56,15 +59,17 @@ module.exports = function(app, db, device_collection){
 	app.get('/api/device/:id', function(req,res){
 		var id = sanitize(req.params.id);
 
-		db.all("SELECT name, ip, mac FROM devices WHERE id= " + id, function(err, rows){
+		db.all("SELECT id,name,ip,mac FROM devices WHERE id=" + id, function(err, rows){
 			if(err){
 				console.log("Device::GET::DB Err");
 				console.log(err);
+				res.sendStatus(400);
 				return;
 			}
 
 			if( rows.length == 0 ){
 				console.log("Device::GET:: ID not found.");
+				res.sendStatus(503);
 				return;
 			}
 
@@ -76,8 +81,30 @@ module.exports = function(app, db, device_collection){
 	});
 
 	app.get('/api/device/wake/:id', function(req, res){
-		var collection = db.collection(device_collection);
 		var id = sanitize(req.params.id);
+
+		console.log("API::Device::Wake::"+id);
+
+		db.all("SELECT mac FROM devices WHERE id="+id, function(err, rows){
+			if(err){
+				res.sendStatus(400);
+				return;
+			}
+			
+			if( rows.length > 1 )
+				console.log("Somehow more than one device with a unique ID was found. Using index 0.");
+
+			if( rows.length === 0 ){
+				console.log("No device was found.");
+				res.sendStatus(503);
+			}
+
+			console.log("DB results:");
+			console.log(rows);
+
+		});
+
+		return;
 		collection.find({ "_id" : new ObjectId(id) }).toArray( function(err, results){
 			if( err ){
 				res.sendStatus(400);
