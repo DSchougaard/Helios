@@ -1,16 +1,16 @@
 /*
 	NPM Modules
 */
-var express = require('express');
-//var wol = require('./wol');
-var path = require('path');
-var bodyParser = require('body-parser');
-var methodOverride = require('method-override');
-var MongoClient = require('mongodb').MongoClient;
-var assert = require('assert');
-var fs = require('fs');
-var http = require('http');
-var https = require('https');
+var express 		= require('express');
+//var wol 			= require('./wol');
+var path 			= require('path');
+var bodyParser 		= require('body-parser');
+var methodOverride 	= require('method-override');
+var MongoClient		= require('mongodb').MongoClient;
+var assert 			= require('assert');
+var fs 				= require('fs');
+var http 			= require('http');
+var https 			= require('https');
 
 /*
 	Possible Modules?
@@ -61,7 +61,81 @@ var forceSSL = function(req, res, next){
 	return next();
 };
 
+
+// Database
+var sqlite3 = require('sqlite3').verbose();
+var dbfile = 'helios.db';
+var db = new sqlite3.Database(dbfile);
+var check;
+
+db.serialize(function() {
+	console.log("Connected to DB.");
+	var createQueries = require("./queries.js");
+	db.run(createQueries.createDeviceTable);
+  	db.run(createQueries.createPasswordTable);
+  	db.run(createQueries.createCertTable);
+	console.log("DB init successful.");
+
+	// Helios Routes
+	require('./app')(app, db, device_collection);
+
+	// HTTPS and HTTP servers, using forceSSL
+	var secureServer = https.createServer(credentials, app);
+	app.use(forceSSL);
+
+	secureServer.listen(config.ssl_port, '0.0.0.0', function(){
+		console.log('Project Helios initated on port ' + secureServer.address().port + '.');
+	});
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Connect to DB
+/*
 MongoClient.connect(config.db_url, function(err, db) {
 	if(err) throw err;
 	
@@ -78,3 +152,5 @@ MongoClient.connect(config.db_url, function(err, db) {
 		console.log('Project Helios initated on port ' + secureServer.address().port + '.');
 	});
 })
+
+*/
