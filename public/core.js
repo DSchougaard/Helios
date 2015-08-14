@@ -42,6 +42,7 @@ helios.factory('DeviceBroker', function($http, $q){
  				return true;
 			})
 			.error(function(data){
+				console.log("DeviceBroker::Update::HTTP Request failed.");
 				return $q.reject(data);
 			});
 	}
