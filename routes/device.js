@@ -110,28 +110,25 @@ module.exports = function(app, db, device_collection){
 			});
 
 		});
-		
+
 	});
 
 	app.post('/api/device/turnoff', function(req, res){
-		var collection 	= db.collection(device_collection);
 		var device 		= req.body.device;
 		var username	= req.body.username;
 		var password 	= req.body.password;
-		var id 			= req.body.device._id;
+		var id 			= req.body.device.id;
 
-		collection.find({ "_id" : new ObjectId(id) }).toArray( function(err, results){
+		db.all("SELECT * FROM devices WHERE id="+id, function(err, rows){
 			if( err ){
 				res.sendStatus(400);
 				return;
 			}
 
-			if( results.length > 1 )
-				console.log("Somehow more than one device with a unique ID was found. Using index 0.");
-
 			var device = results[0];
 			shutdown_ssh.shutdown(device, username, password);
 			res.sendStatus(202);
+
 		});
 
 	});
