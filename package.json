@@ -15,6 +15,7 @@
     "validator": "3.37.0",
     "wake_on_lan": "*",
     "mongo-sanitize":"~1.0.0",
-    "express-force-ssl":"~0.2.12"
+    "express-force-ssl":"~0.2.12",
+    "sqlite3":"*"
   }
 }
