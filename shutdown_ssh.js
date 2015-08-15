@@ -24,18 +24,36 @@ module.exports.shutdown = function(device, username, password){
 	    });
 	  });
 	}).connect({
-		host: device.ip,
-		port: 22,
-		username: username,
-		privateKey: require('fs').readFileSync('~.ssh/id_rsa.pub')
-	});
-
-
-
-	/*connect({
 	  host: device.ip,
 	  port: 22,
 	  username: username,
 	  password: password
-	});*/
+	});
 };
+
+
+
+module.exports.shutdown_cert = function(device){
+  var Client = require('ssh2').Client;
+  var conn = new Client;
+
+  	var conn = new Client();
+	conn.on('ready', function() {
+	  console.log('Client :: ready');
+	  conn.exec('sudo shutdown -P now', { pty: true }, function(err, stream) {
+	    if (err) throw err;
+	    stream.on('close', function(code, signal) {
+	      console.log('Stream :: close :: code: ' + code + ', signal: ' + signal);
+	      conn.end();
+	    }).stderr.on('data', function(data) {
+	      console.log('STDERR: ' + data);
+	    });
+	  });
+	}).connect({
+		host: device.ip,
+		port: 22,
+		username: 'heliosshutdownagent',
+		privateKey: require('fs').readFileSync('ssh/id_rsa')
+	});
+
+}
