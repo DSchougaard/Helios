@@ -42,9 +42,6 @@ module.exports = function(app, db, device_collection){
 
 			if(err) throw err;
 
-			console.log("API/DEVICES:: RESULTS");
-			console.log(rows);
-
 			var method_calls = [];
 			for( var i = 0 ; i < rows.length ; i++){
 				method_calls.push( ping_host(rows[i]) );
@@ -137,21 +134,23 @@ module.exports = function(app, db, device_collection){
 	app.post('/api/device', function(req, res){
 		var device = req.body;
 
-		 db.run("INSERT into devices(name,ip,mac, auth_type) VALUES ('Test', '1.1.1.1', 'ff.ff.ff.ff.ff.00', 'cert')");
+		console.log("API::Device::POST::JSON %j", device);
 
 		// Validate the input
-		if(	!validator.isIP(device.ip, 4)
-		|| 	!validator.isAlphanumeric(device.name) ){
-			// Input error
+
+
+
+		if(	!validator.isIP(device.ip, 4) ){
+			console.log("API::Device::POST::Input IP was not an IP.");
 			res.sendStatus(400);
 			return;
+
 		}
 
 		var stmt = db.prepare("INSERT INTO devices(name, ip, mac, auth_type) VALUES (?,?,?,?)");
 		stmt.run(device.name, device.ip, device.mac, 'password'); // Hard coding authtype first.
 		stmt.finalize();
-
-
+		res.sendStatus(200);
 	});
 
 	app.delete('/api/device/:id', function(req, res){
@@ -159,7 +158,7 @@ module.exports = function(app, db, device_collection){
 
 		db.run("DELETE FROM devices WHERE id="+id, function(err){
 			if(err){
-				console.log("DB Error occured");
+				console.log("API::Devices::DELETE::Error in deleting device with ID " + id + ".");
 				res.sendStatus(404);
 			}else{
 				res.sendStatus(200);

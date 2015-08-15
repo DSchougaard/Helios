@@ -16,6 +16,7 @@
     "wake_on_lan": "*",
     "mongo-sanitize":"~1.0.0",
     "express-force-ssl":"~0.2.12",
-    "sqlite3":"*"
-  }
+    "sqlite3":"*",
+    "suppose":"*"
+    }
 }
