@@ -74,6 +74,7 @@ helios.factory('DeviceBroker', function($http, $q){
 			return;
 
 		devices.push(device);
+		console.log("DeviceBroker::Add:: Added %j.", device);
 	}
 
 	broker.remove = function(device){
