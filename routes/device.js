@@ -116,14 +116,16 @@ module.exports = function(app, db, device_collection){
 		var password 	= req.body.password;
 		var id 			= req.body.device.id;
 
-		db.all("SELECT * FROM devices WHERE id="+id, function(err, rows){
+		db.get("SELECT * FROM devices WHERE id="+id, function(err, row){
 			if( err ){
 				res.sendStatus(400);
+				console.log(err);
 				return;
 			}
 
-			var device = results[0];
-			shutdown_ssh.shutdown(device, username, password);
+			var device = row;
+			//shutdown_ssh.shutdown(device, 'heliosshutdownagent', 'something');
+			shutdown_ssh.shutdown_cert(device);
 			res.sendStatus(202);
 
 		});
