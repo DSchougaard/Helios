@@ -14,6 +14,11 @@ helios.config(function($routeProvider, $locationProvider){
 			controller 		: 'addDeviceController'
 		})
 
+		.when('/scan', {
+			templateUrl		: 'pages/scan.html',
+			controller 		: 'scanNetworkController'
+		})
+
 		.when('/device/:id/edit', {
 			templateUrl		: 'pages/add.html',
 			controller 		: 'editDeviceController'
@@ -203,10 +208,15 @@ helios.controller('passwordPromtController', function($scope, $modalInstance, pr
 	}
 })
 
-helios.controller('addDeviceController', function($scope, $location, $route, $http, DeviceBroker) {
-	$scope.OKButton = "Submit";
+helios.controller('addDeviceController', function($scope, $rootScope, $location, $route, $http, DeviceBroker) {
+	$scope.OKButton = "Add";
 	$scope.device = {}
 	$scope.device.store_ssh_username = false;
+
+	if( $rootScope.device !== undefined ){
+		$scope.device = $rootScope.device;
+		$rootScope.device = null;
+	}
 
 	$scope.submit = function(device){	
 		$http.post('/api/device', device)
@@ -275,6 +285,30 @@ helios.controller('editDeviceController', function($scope, $routeParams, $rootSc
 });
 
 
+helios.controller('scanNetworkController', function($http, $scope, $rootScope, DeviceBroker, $location){
+	$scope.loading = true;
+
+	// Setup lodash
+	$scope._ = _;
+
+	var devices = $http.get('/api/scan')
+		.success(function(data){
+			$scope.devices = data;
+			$scope.loading = false;
+		})
+		.error(function(error){
+
+		});
+
+	$scope.select = function(device){
+		$rootScope.device = device;
+		console.log("Selected scanned device: %j", $rootScope.device);
+
+		$location.path('/add');
+	}
+
+
+});
 
 
 
