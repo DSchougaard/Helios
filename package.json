@@ -17,6 +17,7 @@
     "mongo-sanitize":"~1.0.0",
     "express-force-ssl":"~0.2.12",
     "sqlite3":"*",
-    "suppose":"*"
-    }
+    "node-libnmap":"*",
+    "node-arp":"*"
+   }
 }
