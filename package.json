@@ -18,6 +18,7 @@
     "express-force-ssl":"~0.2.12",
     "sqlite3":"*",
     "node-libnmap":"*",
-    "node-arp":"*"
+    "node-arp":"*",
+    "lodash": "^3.7.0"
    }
 }
