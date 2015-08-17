@@ -5,25 +5,25 @@ var nmapOptions = {
 var nmap = require('node-libnmap');
 var arp = require('node-arp');
 var Q = require('q');
-
+var _ = require('lodash');
 
 
 module.exports = function(app, db){
 	app.get('/api/scan', function(req, res){
-		// Returns dummy data
-		var dummy_data = [	{ "ip":"1.1.1.1", "name":"test", "mac":"ff.ff.ff.ff.ff.ff" }, 
-							{ "ip":"2.2.2.2", "name":"test2", "mac":"ff.ff.ff.ff.ff.fe"},
-							{ "ip":"3.3.3.3", "name":"test3", "mac":"ff.ff.ff.ff.ff.fd"}];
-		//res.json(dummy_data);
 
+		// Runs nmap to find devices on local network
 		nmap.nmap('discover', nmapOptions, function(err, report){
-			//if (err) throw err
-			console.log(report[0].neighbors);
+			if (err) throw err
 
+			// function for using arp to resolve mac, from IP
 			function arpRequest(device){
 				var deferred = Q.defer();
 				arp.getMAC(device.ip, function(err, mac){
 					if(err) throw err;
+					
+					// Since ARP does not generate 2 digit hex consequently, we prepend 0s
+					mac = _.map(mac.split(":"), function(p) { return p.length == 2 ? p : 0 + p; }).join(":");
+
 					device.mac = mac;
 					console.log("Resolved MAC for IP: %s, to: %s.", device.ip, device.mac);
 					deferred.resolve(device);
@@ -31,7 +31,7 @@ module.exports = function(app, db){
 				return deferred.promise;
 			}
 					
-
+			// Create promise request array
 			var arpRequests = [];
 			var devices = [];
 			for( var i = 0 ; i < report[0].neighbors.length ; i++ ){
@@ -41,6 +41,7 @@ module.exports = function(app, db){
 				arpRequests.push(arpRequest(device));
 			}
 
+			// Execute promises
 			Q.all(arpRequests).then(function(promises){
 				res.json(devices);
 			});
