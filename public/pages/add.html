@@ -1,11 +1,14 @@
 <!-- <div ng-controller="addDeviceController"> -->
-	<form class="form-horizontal" >
+
+
+<form name="addDeviceForm" class="form-horizontal" novalidate>
     <legend> Device Details </legend>
-    <!-- Machine Name -->
+    <!-- Device Name -->
     <div class="form-group">
-        <label for="name" class="control-label col-md-2">Machine Name</label>
+        <label for="name" class="control-label col-md-2">Device Name</label>
         <div class="col-md-10">
-            <input type="text" class="form-control" ng-model="device.name" placeholder="Name">
+            <input type="text" name="name" class="form-control" ng-model="device.name" placeholder="Name" required ng-minlength="5">
+            <p ng-show="addDeviceForm.name.$invalid && addDeviceForm.name.$dirty" class="help-block">Invalid device name</p>
         </div>
     </div>
 
@@ -13,7 +16,8 @@
     <div class="form-group">
         <label for="ip" class="control-label col-md-2">IP Address</label>
         <div class="col-md-10">
-            <input type="text" class="form-control" ng-model="device.ip" placeholder="IP Address">
+            <input type="text" name="ip" ip-address class="form-control" ng-model="device.ip" placeholder="IP Address" required>
+            <p ng-show="addDeviceForm.ip.$invalid && addDeviceForm.ip.$dirty" class="help-block">Invalid IP address</p>
         </div>
     </div>
 
@@ -21,9 +25,19 @@
     <div class="form-group">
         <label for="mac" class="control-label col-md-2">Mac Address</label>
         <div class="col-md-10">
-            <input type="text" class="form-control" ng-model="device.mac" placeholder="Mac Address">
+            <input type="text" name="mac" mac-address class="form-control" ng-model="device.mac" placeholder="Mac Address" required>
+            <p ng-show="addDeviceForm.mac.$invalid && addDeviceForm.mac.$dirty" class="help-block">Invalid MAC address</p>
+
         </div>
     </div>
+
+    <legend> Installation Settings </legend>
+
+    <!-- <input type="checkbox" name="my-checkbox" checked> -->
+    
+
+    <div toggle-switch class="switch-primary" ng-model="switchStatus"></div>
+
 
     <legend> Authentication Details </legend>
 
@@ -49,7 +63,7 @@
     <div class="form-group">
         <label class="control-label col-md-2"></label>
         <div class="col-md-10 btn-group pull-right" role="group" aria-label="..?">
-            <button class="btn btn-success" ng-click="submit(device)">{{OKButton}}</button>
+            <button class="btn btn-success" ng-click="submit(device)" ng-disabled="addMachineForm.$invalid">{{OKButton}}</button>
             <button class="btn btn-danger" ng-click="cancel()">Cancel</button>
         </div>
     </div>
