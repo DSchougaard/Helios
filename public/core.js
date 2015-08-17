@@ -1,4 +1,4 @@
-var helios = angular.module('helios', ['ngRoute', 'ui.bootstrap']);
+var helios = angular.module('helios', ['ngRoute', 'ui.bootstrap', 'toggle-switch']);
 
 helios.config(function($routeProvider, $locationProvider){
 	$routeProvider
@@ -75,8 +75,9 @@ helios.factory('DeviceBroker', function($http, $q){
 	}
 
 	broker.add = function(device){
-		if( _.contains(devices, device, 0) )
+		if( _.contains(devices, device, 0) ){
 			return;
+		}
 
 		devices.push(device);
 		console.log("DeviceBroker::Add:: Added %j.", device);
@@ -108,13 +109,9 @@ helios.factory('DeviceBroker', function($http, $q){
 
 	return broker;
 })
-	
 
 helios.controller('mainController', function($scope, $http) {
-	
 });
-
-
 
 helios.controller('listController', function($scope, $route, $http, $modal, DeviceBroker) {
 	// Env Variables
@@ -129,6 +126,10 @@ helios.controller('listController', function($scope, $route, $http, $modal, Devi
 			$scope.devices = response;
 		});
 
+
+	$scope.deviceStatus = function(device){
+
+	}
 
 	$scope.act = function(device){
 		var api_selection = '/api/device/';
@@ -183,19 +184,7 @@ helios.controller('listController', function($scope, $route, $http, $modal, Devi
 	$scope.edit = function(device){
 		editDevice.setID(device);
 	}
-
 });
-
-
-
-
-
-
-
-
-
-
-
 
 
 helios.controller('passwordPromtController', function($scope, $modalInstance, promtForUsername){
@@ -213,10 +202,15 @@ helios.controller('addDeviceController', function($scope, $rootScope, $location,
 	$scope.device = {}
 	$scope.device.store_ssh_username = false;
 
+	// Hacky selection transfer from Scan page
 	if( $rootScope.device !== undefined ){
 		$scope.device = $rootScope.device;
 		$rootScope.device = null;
 	}
+
+
+	/*$("[name='my-checkbox']").bootstrapSwitch();*/
+
 
 	$scope.submit = function(device){	
 		$http.post('/api/device', device)
@@ -306,14 +300,64 @@ helios.controller('scanNetworkController', function($http, $scope, $rootScope, D
 
 		$location.path('/add');
 	}
-
-
 });
 
+var IPRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
+/*
+helios.directive("ipAddress", function(){
+	// requires an isloated model
+	return {
+		// restrict to an attribute type.
+		restrict: 'A',
+		// element must have ng-model attribute.
+		require: 'ngModel',
+		link: function(scope, ele, attrs, ctrl){
+			// add a parser that will process each time the value is
+			// parsed into the model when the user updates it.
+			ctrl.$parsers.unshift(function(value) {
+				if(value){
+				  // test and set the validity after update.
+				  var valid = IPRegex.test(value);
+				  ctrl.$setValidity('invalidIP', valid);
+				}
+				// if it's valid, return the value to the model,
+				// otherwise return undefined.
+				return valid ? value : undefined;
+			});
 
+		}
+	}
+});*/
 
+helios.directive('ipAddress', function(){
+	return {
+		restrict: 'A',
+		require: 'ngModel',
 
+		link: function($scope, $element, $attrs, ngModel) {
+			$scope.$watch($attrs.ngModel, function(value) {
+				var isValid = (IPRegex.test(value));
+				ngModel.$setValidity('invalidIP', isValid);
+			});
+		}
+	}
+});
+
+var MACRegex = new RegExp("^(([A-Fa-f0-9]{2}[:\.-]){5}[A-Fa-f0-9]{2})$");
+helios.directive('macAddress', function(){
+	return{
+		restrict: 'A',
+		require: 'ngModel',
+		
+		link: function($scope, $element, $attrs, ngModel) {
+			$scope.$watch($attrs.ngModel, function(value) {
+				var isValid = (MACRegex.test(value));
+				ngModel.$setValidity('invalidIP', isValid);
+			});
+		}
+	}
+});
 
 
 
