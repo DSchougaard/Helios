@@ -17,15 +17,15 @@
 
 
 
-	<div class="btn-group inline pull-right">
+	<div class="btn-group inline pull-right" dropdown>
 		<!-- Wake Device button -->
 		<button type="button" style="width:100px !important;" class="btn btn-success" ng-class="device.online?'btn-danger':'btn-success'" ng-click="act(device)"> {{device.online==true?'Turn it off!':'Wake it!'}}</button> 
-		<button type="button" class="btn dropdown-toggle btn-success" ng-class="device.online?'btn-danger':'btn-success'" data-toggle="dropdown" ariaexpanded="false">
+		<button type="button" class="btn dropdown-toggle btn-success" ng-class="device.online?'btn-danger':'btn-success'" dropdown-toggle>
 			<span class="caret"></span>
 			<span class="sr-only">Toggle Dropdown</span>
 		</button>
 		<!-- <input type="hidden" ng-nodel="device"> -->
-		<ul class="dropdown-menu" role="menu">
+		<ul class="dropdown-menu" role="menu" aria-labelledby="split-button">
 			<!-- <li><a href="/update"> -->
 			<li><a href="/device/{{device.id}}/edit">
 				<i class="fa fa-pencil"></i> Edit</a>
