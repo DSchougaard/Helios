@@ -37,6 +37,7 @@ function ping_host(device){
 
 
 module.exports = function(app, db, device_collection){
+	// Get all devices
 	app.get('/api/devices', function(req, res){
 		db.all("SELECT * from devices;",function(err, rows){
 
@@ -53,6 +54,7 @@ module.exports = function(app, db, device_collection){
 		});
 	});
 
+	// Get specific device
 	app.get('/api/device/:id', function(req,res){
 		var id = sanitize(req.params.id);
 
@@ -77,6 +79,7 @@ module.exports = function(app, db, device_collection){
 		});
 	});
 
+	// wake specific device
 	app.get('/api/device/wake/:id', function(req, res){
 		var id = sanitize(req.params.id);
 
@@ -110,6 +113,7 @@ module.exports = function(app, db, device_collection){
 
 	});
 
+	// Shutdown device
 	app.post('/api/device/turnoff', function(req, res){
 		var device 		= req.body.device;
 		var username	= req.body.username;
@@ -133,6 +137,7 @@ module.exports = function(app, db, device_collection){
 	});
 
 
+	// Create new device
 	app.post('/api/device', function(req, res){
 		var device = req.body;
 
@@ -140,18 +145,32 @@ module.exports = function(app, db, device_collection){
 
 		// Validate the input
 
-
+		if( validator.isNull(device.name) ){
+			console.log("API::Device::POST::Input name was null");
+			res.sendStatus(400);
+			return;
+		}
 
 		if(	!validator.isIP(device.ip, 4) ){
 			console.log("API::Device::POST::Input IP was not an IP.");
 			res.sendStatus(400);
 			return;
+		}
 
+		var macRegexPattern = new RegExp("^(([A-Fa-f0-9]{2}[:\.-]){5}[A-Fa-f0-9]{2})$");
+
+		// Validate MAC address
+		if( !macRegexPattern.test(device.mac) ){
+			console.log("API::Device::POST::Input mac malformed.");
+			res.sendStatus(400);
+			return;
 		}
 
 		var stmt = db.prepare("INSERT INTO devices(name, ip, mac, auth_type) VALUES (?,?,?,?)");
 		stmt.run(device.name, device.ip, device.mac, 'password'); // Hard coding authtype first.
 		stmt.finalize();
+
+		//console.log("API::Device::POST::Sending HTTP status 200.");
 		res.sendStatus(200);
 	});
 
