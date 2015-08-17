@@ -202,6 +202,12 @@ helios.controller('addDeviceController', function($scope, $rootScope, $location,
 	$scope.device = {}
 	$scope.device.store_ssh_username = false;
 
+	// Shutdown Settings
+	$scope.shutdown = 'cert';
+	$scope.certShutdown = true;
+	$scope.passwordShutdown = !$scope.certShutdown;
+
+
 	// Hacky selection transfer from Scan page
 	if( $rootScope.device !== undefined ){
 		$scope.device = $rootScope.device;

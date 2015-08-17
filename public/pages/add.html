@@ -31,14 +31,25 @@
         </div>
     </div>
 
-    <legend> Installation Settings </legend>
+    <legend> Shutdown Settings </legend>
+    
+    <div class="form-group">
+        <label for="install_1" class="control-label col-md-2"> Password Shutdown </label>
+        <div class="col-md-10">
+            <toggle-switch ng-model="passwordShutdown" ng-change="certShutdown = !certShutdown" name="install_1"></toggle-switch>
+        </div>
+    </div>
 
+
+    <div class="form-group">
+        <label for="install2" class="control-label col-md-2"> Certificate Shutdown </label>
+        <div class="col-md-10">
+            <toggle-switch ng-model="certShutdown" ng-change="passwordShutdown = !passwordShutdown" name="install2"></toggle-switch>
+        </div>
+    </div>
     <!-- <input type="checkbox" name="my-checkbox" checked> -->
     
-
-    <div toggle-switch class="switch-primary" ng-model="switchStatus"></div>
-
-
+    
     <legend> Authentication Details </legend>
 
     <div class="checkbox">
