@@ -25,3 +25,6 @@ db_conf:
 	mkdir /data/db
 	mkdir /home/mongodb
 	cp boot/mongodb.sh /etc/init.d/mongodb
+
+count:
+	cloc --exclude-dir=node_modules,components --by-file .
