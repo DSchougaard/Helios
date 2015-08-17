@@ -1,0 +1,40 @@
+<!-- Loader! -->
+<div class="text-center" ng-show="loading" style="padding-bottom:20px">
+	<div class="fa fa-spinner fa-spin fa-5x" style="margin-top:20px"></div>
+</div>
+
+
+<h3 ng-hide="loading">Results</h3>
+<table class="table table-striped" ng-hide="loading">
+	<thead>
+		<tr>
+			<th>IP</th>
+			<th>Mac</th>
+			<th>Add</th>
+		</tr>
+	</thead>
+
+	<tbody>
+		<tr ng-repeat="device in devices">
+			<td>{{ device.ip }}</td>
+			<td>{{ device.mac }}</td>
+			<td>
+				<button type="button" class="btn btn-success btn-xs" ng-click="select(device)">
+					<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+				</button>
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+
+
+<!--
+<div>
+Name 
+</div>
+<!-- Actual List of Machines -->
+<!--<div style="height:40px;" ng-repeat="device in devices">
+    <p class="inline pull-left" style="padding-top:6px"> {{device.name}} : </p>
+</div>
+-->
