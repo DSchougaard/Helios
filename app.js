@@ -4,6 +4,7 @@ module.exports = function(app, db, device_collection){
 	*/
 	require('./routes/device')(app, db, device_collection);
 	require('./routes/scan')(app, db);
+	require('./routes/helios')(app,db);
 
 	app.get('*', function(req, res) {
 		res.sendFile( __dirname + '/public/index.html'); 
