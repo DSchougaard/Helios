@@ -42,7 +42,8 @@ module.exports = function(app, db){
 	          "sudo cat HeliosCertificate.key >> ~/../" + config.ssh_user +"/.ssh/authorized_keys",
 	          "sudo chown " + config.ssh_user + ":" + config.ssh_user +" ~/../" + config.ssh_user +"/.ssh/authorized_keys",
 	          "sudo chmod 600 ~/../" + config.ssh_user +"/.ssh/authorized_keys",
-	          "sudo chmod 700 ~/../" + config.ssh_user +"/.ssh"
+	          "sudo chmod 700 ~/../" + config.ssh_user +"/.ssh",
+	          "sudo rm HeliosCertificate.key"
 			],
 			onEnd: function( sessionText, sshObj ) {
 				console.log("API::Config::Cert: SSH session ended.");
@@ -67,6 +68,7 @@ module.exports = function(app, db){
 
 		SSH.connect();
 	});
+	
 
 	
 	
