@@ -36,7 +36,7 @@ helios.config(function($routeProvider, $locationProvider){
 
 helios.factory('DeviceBroker', function($http, $q){
 	var broker = {};
-	var devices = []
+	var devices = [];
 	timestamp = 0;
 
 	broker.update = function(){
@@ -65,6 +65,7 @@ helios.factory('DeviceBroker', function($http, $q){
 				});		
 		}else{
 			console.log("DeviceBroker::GetAll::Reusing data.");
+			console.log("%j", devices);
 			deferred.resolve(devices);
 		}
 		return deferred.promise;
@@ -76,6 +77,7 @@ helios.factory('DeviceBroker', function($http, $q){
 
 	broker.add = function(device){
 		if( _.contains(devices, device, 0) ){
+			console.log("DeviceBroker::Added existing device.")
 			return;
 		}
 
@@ -217,11 +219,28 @@ helios.controller('addDeviceController', function($scope, $rootScope, $location,
 
 	/*$("[name='my-checkbox']").bootstrapSwitch();*/
 
+	$scope.test = function(device){
+
+		target = {};
+		target.device = device;
+		target.username = "test";
+		target.password = "password";
+
+
+		console.log("Testing: %j.", target);
+		$http.post('/api/config/cert', target)
+			.success( function(data, status, headers, config){
+				console.log("Test: Success.");
+			})
+			.error( function(data, status, headers, config){
+				console.log("Test: Error.");
+			});
+	}
 
 	$scope.submit = function(device){	
 		$http.post('/api/device', device)
 		.success( function(data, status, headers, config){		
-			DeviceBroker.add(data);
+			DeviceBroker.add(device);
 			$location.path('/');
 		})
 		.error( function(data, status, headers, config){
