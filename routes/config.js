@@ -54,41 +54,38 @@ module.exports = function(app, db){
 			},
 			onCommandTimeout: function(command, response, sshObj, stream, connection){
 				console.log("API::Config::Cert: SSH command timed out.")
-				//res.sendStatus(404);
+				res.sendStatus(404);
 			}
 
 		};
 		//var SSH2Shell = require ('ssh2shell');
 		var SSH = new SSH2Shell(targetCertInject);
 	
-		/*SSH.on("error", function onError(err, type, close, callback) {
-			console.log("API::Config::Cert: SSH error.");
-			console.log(type);
-			console.log(err);
+		SSH.on("error", function onError(err, type, close, callback) {
+			console.log("API::Config::Cert: SSH error: " + err);
+			//console.log(type);
+			//console.log(err);
 			res.sendStatus(404);
-		});*/
+		});
 
 		SSH.connect();
 	});
 	
-	app.get('/api/config/shutdown', function(req, res){
-
+	app.post('/api/config/shutdown', function(req, res){
 		console.log("API::Config::Shutdown: Elevating Helios shutdown user, to allow shutdown on target: %j");
 		
-		var ip				= '192.168.1.134';
-		var port 			= '22';
-		var username 		= 'test';
-		var password 		= 'password';
-
-
+		var ip				= req.body.device.ip;
+		var port 			= req.body.device.port || '22';
+		var username 		= req.body.username || 'test';
+		var password 		= req.body.password || 'password';
+		
 		// Helios
 		var heliosHttpPrefix 	= config.ssl_enabled ? "https://" : "http://";
 		var heliosPort 			= config.ssl_enabled ? config.ssl_port : config.port;
 		var heliosIP 			= require('ip').address();
+		
 		// Concats options to shorthand variables
 		var heliosHost 			= heliosHttpPrefix + heliosIP + ":" + heliosPort;
-		console.log("heliosHost = " + heliosHost);
-
 
 		var targetPermInject = {
 			server: {     
@@ -105,20 +102,23 @@ module.exports = function(app, db){
 			],
 			onEnd: function( sessionText, sshObj ) {
 				console.log("API::Config::Permissions: SSH session ended.");
-				console.log(sessionText);
-				//res.sendStatus(200);
+				//console.log(sessionText);
+				res.sendStatus(200);
 			},
-			verbose:             true/false,  //optional default:false 
-  			debug:               true/false
+			onCommandTimeout: function(command, response, sshObj, stream, connection){
+				console.log("API::Config::Cert: SSH command timed out.")
+				res.sendStatus(404);
+			}
 		};
 
 	
-		/*SSH.on("error", function onError(err, type, close, callback) {
-			console.log("API::Config::Shutdown: SSH error.");
-			console.log(type);
-			console.log(err);
+		SSH.on("error", function onError(err, type, close, callback) {
+			console.log("API::Config::Shutdown: SSH error: " + err);
+			//console.log(type);
+			//console.log(err);
 			res.sendStatus(404);
-		});*/
+		});
+
 		var SSH = new SSH2Shell(targetPermInject);
 		SSH.connect();
 	});
