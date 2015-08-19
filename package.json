@@ -20,6 +20,7 @@
     "node-libnmap":"*",
     "node-arp":"*",
     "lodash": "^3.7.0",
-    "suppose":"*"
+    "suppose":"*",
+    "ip":"*"
    }
 }
