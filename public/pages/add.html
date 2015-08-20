@@ -72,16 +72,24 @@
             </div>
         </div>
 
+        <!-- Cert Injection Option -->
         <div class="form-group">
             <label for="injectCert" class="control-label col-md-2">Inject Cert</label>
             <div class="col-md-10">
                 <input type="checkbox" name="injectCert" ng-model="injectCert">
             </div>
-            <label for="injectCert" class="control-label">
-                N.B.: If you do not wish to inject the Helios certificate, you will be promted for a password each time you wish to perform a shutdown.
-            </label>
         </div>
 
+        <!-- No CERT INJECTION Alert -->
+        <div class="form-group" ng-show="!injectCert">
+            <label for="warningCert" class="control-label col-md-2"></label>
+            <div class="col-md-10">
+                <div class="alert alert-warning alert-dismissible" role="alert">
+                   <strong>Alert!</strong> If you do not wish to inject the Helios certificate, you will be promted for a password each time you wish to perform a shutdown.
+                </div>
+
+            </div>
+        </div>
 
 
 
@@ -104,26 +112,7 @@
             </div>
         </div>
     </div>
-
-    <!-- <input type="checkbox" name="my-checkbox" checked> -->
     
-    
-    <legend> Authentication Details </legend>
-
-    <div class="checkbox">
-        <label>
-            <input type="checkbox" ng-model="device.store_ssh_username">
-            Store SSH username.
-        </label>
-    </div>
-
-    <!-- SSH Username -->
-    <div class="form-group" ng-show="device.store_ssh_username">
-        <label for="ip" class="control-label col-md-2">SSH Username</label>
-        <div class="col-md-10">
-            <input type="text" class="form-control" ng-model="device.ssh_username" placeholder="SSH Username">
-        </div>
-    </div>
 
 
 
