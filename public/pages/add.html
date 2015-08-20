@@ -31,22 +31,80 @@
         </div>
     </div>
 
-    <legend> Shutdown Settings </legend>
-    
-    <div class="form-group">
-        <label for="install_1" class="control-label col-md-2"> Password Shutdown </label>
-        <div class="col-md-10">
-            <toggle-switch ng-model="passwordShutdown" ng-change="certShutdown = !certShutdown" name="install_1"></toggle-switch>
+
+    <div ng-show="false">
+        <legend> Shutdown Settings </legend>
+        <div class="form-group">
+            <label for="install_1" class="control-label col-md-2"> SSH </label>
+            <div class="col-md-10">
+                <toggle-switch ng-model="sshShutdown" ng-change="deamonShutdown = !deamonShutdown" name="install_1"></toggle-switch>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="install2" class="control-label col-md-2"> Helios Daemon </label>
+            <div class="col-md-10">
+                <toggle-switch ng-model="deamonShutdown" ng-change="sshShutdown = !sshShutdown" name="install2"></toggle-switch>
+            </div>
         </div>
     </div>
 
+    <!-- SSH Shutdown settings -->
+    <div ng-show="sshShutdown">
+        <legend> SSH Settings </legend>
 
-    <div class="form-group">
-        <label for="install2" class="control-label col-md-2"> Certificate Shutdown </label>
-        <div class="col-md-10">
-            <toggle-switch ng-model="certShutdown" ng-change="passwordShutdown = !passwordShutdown" name="install2"></toggle-switch>
+        <!--  Toggle for which ssh user that is used -->
+        <div class="form-group">
+            <label for="sshUserSelection" class="control-label col-md-2"> User Selection </label>
+
+            <div class="col-md-10">
+                <div class="btn-group" name="sshUserSelection">
+                    <label class="btn btn-primary" ng-model="sshUser" btn-radio="'helios'" ng-click="injectCert=true">Use Helios default user</label>
+                    <label class="btn btn-primary" ng-model="sshUser" btn-radio="'custom'" ng-click="injectCert=false">Use custom (or existing) user</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" ng-show="sshUser=='custom'">
+            <label for="" class="control-label col-md-2"> SSH Username </label>
+            <div class="col-md-10">
+                <input type="text" name="sshUsername" mac-address class="form-control" ng-model="sshUsername" placeholder="HeliosShutdownAgent" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="injectCert" class="control-label col-md-2">Inject Cert</label>
+            <div class="col-md-10">
+                <input type="checkbox" name="injectCert" ng-model="injectCert">
+            </div>
+            <label for="injectCert" class="control-label">
+                N.B.: If you do not wish to inject the Helios certificate, you will be promted for a password each time you wish to perform a shutdown.
+            </label>
+        </div>
+
+
+
+
+
+    </div>
+
+
+    <!-- Daemon Shutdown settings -->
+    <div>
+    </div>
+
+
+
+    <div ng-show="deamonShutdown">
+        <legend> Daemon Test </legend>
+        <div class="form-group">
+            <label class="control-label col-md-2"></label>
+            <div class="col-md-10 btn-group pull-right">
+                <button class="btn btn-default" ng-click="test(device)" > Test Function </button>
+            </div>
         </div>
     </div>
+
     <!-- <input type="checkbox" name="my-checkbox" checked> -->
     
     
@@ -66,6 +124,8 @@
             <input type="text" class="form-control" ng-model="device.ssh_username" placeholder="SSH Username">
         </div>
     </div>
+
+
 
 
 

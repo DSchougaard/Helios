@@ -200,14 +200,13 @@ helios.controller('passwordPromtController', function($scope, $modalInstance, pr
 })
 
 helios.controller('addDeviceController', function($scope, $rootScope, $location, $route, $http, DeviceBroker) {
+	// Setup page variables
 	$scope.OKButton = "Add";
-	$scope.device = {}
-	$scope.device.store_ssh_username = false;
+	$scope.sshShutdown = true;
+	$scope.daemonShutdown = true;
 
-	// Shutdown Settings
-	$scope.shutdown = 'cert';
-	$scope.certShutdown = true;
-	$scope.passwordShutdown = !$scope.certShutdown;
+	$scope.sshUser = 'helios';
+	$scope.injectCert = true;
 
 
 	// Hacky selection transfer from Scan page
@@ -217,7 +216,10 @@ helios.controller('addDeviceController', function($scope, $rootScope, $location,
 	}
 
 
-	/*$("[name='my-checkbox']").bootstrapSwitch();*/
+	// Create device JSON object
+	$scope.device = {}
+	
+
 
 	$scope.test = function(device){
 
