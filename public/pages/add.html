@@ -59,23 +59,36 @@
 
             <div class="col-md-10">
                 <div class="btn-group" name="sshUserSelection">
-                    <label class="btn btn-primary" ng-model="sshUser" btn-radio="'helios'" ng-click="injectCert=true">Use Helios default user</label>
-                    <label class="btn btn-primary" ng-model="sshUser" btn-radio="'custom'" ng-click="injectCert=false">Use custom (or existing) user</label>
+                    <label class="btn btn-primary" ng-model="sshUser" btn-radio="'helios'" ng-click="injectCert=true">Create new Helios user</label>
+                    <label class="btn btn-primary" ng-model="sshUser" btn-radio="'custom'" ng-click="injectCert=false">Use existing user</label>
                 </div>
             </div>
         </div>
 
+        <div class="form-group" ng-show="sshUser=='helios'">
+            <label for="warningCert" class="control-label col-md-2"></label>
+            <div class="col-md-10">
+                <div class="alert alert-info" role="alert">
+                   <strong>Info:</strong> This will create a new user on the target system, as defined in <strong>config.json</strong>, and injecting the self-signed Helios certificate into 
+                </div>
+            </div>
+        </div>
+
+
+
+
+        <!-- Username for SSH, should the regular SSH user not be used -->
         <div class="form-group" ng-show="sshUser=='custom'">
-            <label for="" class="control-label col-md-2"> SSH Username </label>
+            <label for="" class="control-label col-md-2"> Username </label>
             <div class="col-md-10">
                 <input type="text" name="sshUsername" mac-address class="form-control" ng-model="sshUsername" placeholder="HeliosShutdownAgent" required>
             </div>
         </div>
 
         <!-- Cert Injection Option -->
-        <div class="form-group">
+        <div class="form-group" ng-show="sshUser=='custom'">
             <label for="injectCert" class="control-label col-md-2">Inject Cert</label>
-            <div class="col-md-10">
+            <div class="col-md-10" style="padding-top:7px;">
                 <input type="checkbox" name="injectCert" ng-model="injectCert">
             </div>
         </div>
@@ -84,12 +97,12 @@
         <div class="form-group" ng-show="!injectCert">
             <label for="warningCert" class="control-label col-md-2"></label>
             <div class="col-md-10">
-                <div class="alert alert-warning alert-dismissible" role="alert">
+                <div class="alert alert-warning" role="alert">
                    <strong>Alert!</strong> If you do not wish to inject the Helios certificate, you will be promted for a password each time you wish to perform a shutdown.
                 </div>
-
             </div>
         </div>
+
 
 
 
