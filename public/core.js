@@ -188,7 +188,6 @@ helios.controller('listController', function($scope, $route, $http, $modal, Devi
 	}
 });
 
-
 helios.controller('passwordPromtController', function($scope, $modalInstance, promtForUsername){
 	$scope.promtForUsername = promtForUsername;
 	$scope.ok = function(){
@@ -239,10 +238,30 @@ helios.controller('addDeviceController', function($scope, $rootScope, $location,
 			});
 	}
 
-	$scope.submit = function(device){	
+	$scope.submit = function(device){
+		if( device.sshUsername == 'helios' ){
+			console.log("Preparing to inject Helios user.");
+			// Set sshUsername to null, to use default username.
+			device.sshUsername = null;
+		}
+
+	
+
 		$http.post('/api/device', device)
 		.success( function(data, status, headers, config){		
 			DeviceBroker.add(device);
+
+			if( $scope.sshSettings.injectCert == true && $scope.device.sshUsername == 'helios' ){
+				console.log("Injecting cert and ")
+				$http.post('/api/config/cert')
+					.success( function(data, status, headers, config){
+
+					})
+					.error( function(data, status, headers, config){
+
+					});
+			}
+
 			$location.path('/');
 		})
 		.error( function(data, status, headers, config){
@@ -305,7 +324,6 @@ helios.controller('editDeviceController', function($scope, $routeParams, $rootSc
 	}
 });
 
-
 helios.controller('scanNetworkController', function($http, $scope, $rootScope, DeviceBroker, $location){
 	$scope.loading = true;
 
@@ -329,33 +347,17 @@ helios.controller('scanNetworkController', function($http, $scope, $rootScope, D
 	}
 });
 
+
+
+
+
+
+
+
+
+
+// Directives
 var IPRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-
-/*
-helios.directive("ipAddress", function(){
-	// requires an isloated model
-	return {
-		// restrict to an attribute type.
-		restrict: 'A',
-		// element must have ng-model attribute.
-		require: 'ngModel',
-		link: function(scope, ele, attrs, ctrl){
-			// add a parser that will process each time the value is
-			// parsed into the model when the user updates it.
-			ctrl.$parsers.unshift(function(value) {
-				if(value){
-				  // test and set the validity after update.
-				  var valid = IPRegex.test(value);
-				  ctrl.$setValidity('invalidIP', valid);
-				}
-				// if it's valid, return the value to the model,
-				// otherwise return undefined.
-				return valid ? value : undefined;
-			});
-
-		}
-	}
-});*/
 
 helios.directive('ipAddress', function(){
 	return {
