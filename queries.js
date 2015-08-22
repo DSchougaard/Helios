@@ -15,6 +15,7 @@ exports.createDeviceTable = "CREATE TABLE IF NOT EXISTS devices(\
 	name 					TEXT				NOT NULL, \
 	ip 						TEXT 				NOT NULL, \
 	mac 					TEXT 				NOT NULL, \
+	ssh_username 			TEXT				,\
 	auth_type 				TEXT 				NOT NULL \
 );"
 
