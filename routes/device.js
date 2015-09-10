@@ -128,8 +128,8 @@ module.exports = function(app, db, device_collection){
 			}
 
 			var device = row;
-			//shutdown_ssh.shutdown(device, 'heliosshutdownagent', 'something');
-			shutdown_ssh.shutdown_cert(device);
+			shutdown_ssh.shutdown(device, username, password);
+			//shutdown_ssh.shutdown_cert(device);
 			res.sendStatus(202);
 
 		});

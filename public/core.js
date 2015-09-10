@@ -207,18 +207,16 @@ helios.controller('addDeviceController', function($scope, $rootScope, $location,
 	$scope.sshUser = 'helios';
 	$scope.injectCert = true;
 
+	// Create device JSON object
+	$scope.device = {};
 
 	// Hacky selection transfer from Scan page
 	if( $rootScope.device !== undefined ){
 		$scope.device = $rootScope.device;
 		$rootScope.device = null;
+	}else{
+		$scope.device = {};
 	}
-
-
-	// Create device JSON object
-	$scope.device = {}
-	
-
 
 	$scope.test = function(device){
 
@@ -245,23 +243,11 @@ helios.controller('addDeviceController', function($scope, $rootScope, $location,
 			device.sshUsername = null;
 		}
 
-	
+	 
 
 		$http.post('/api/device', device)
 		.success( function(data, status, headers, config){		
 			DeviceBroker.add(device);
-
-			if( $scope.sshSettings.injectCert == true && $scope.device.sshUsername == 'helios' ){
-				console.log("Injecting cert and ")
-				$http.post('/api/config/cert')
-					.success( function(data, status, headers, config){
-
-					})
-					.error( function(data, status, headers, config){
-
-					});
-			}
-
 			$location.path('/');
 		})
 		.error( function(data, status, headers, config){
@@ -342,7 +328,6 @@ helios.controller('scanNetworkController', function($http, $scope, $rootScope, D
 	$scope.select = function(device){
 		$rootScope.device = device;
 		console.log("Selected scanned device: %j", $rootScope.device);
-
 		$location.path('/add');
 	}
 });

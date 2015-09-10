@@ -4,7 +4,7 @@ module.exports.shutdown = function(device, username, password){
 	var conn = new Client();
 	conn.on('ready', function() {
 	  console.log('Client :: ready');
-	  conn.exec('sudo -S shutdown -h now', { pty: true }, function(err, stream) {
+	  conn.exec('sudo -S shutdown -P now', { pty: true }, function(err, stream) {
 	    if (err) throw err;
 	    var b = '', pwsent = false;
 	    stream.on('close', function(code, signal) {
