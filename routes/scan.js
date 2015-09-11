@@ -1,16 +1,20 @@
-var nmapOptions = {
-	nmap: '/usr/local/bin/nmap'
-}
-
 var nmap = require('node-libnmap');
 var arp = require('node-arp');
 var Q = require('q');
 var _ = require('lodash');
 var ip = require('ip');
+var os = require('os');
 
 
 module.exports = function(app, db){
 	app.get('/api/scan', function(req, res){
+
+		var nmapOptions = {};
+
+		if( os.platform() === 'darwin' ){
+			console.log("OS X Detected. Using verison 10.10 settings.");
+			nmapOptions.nmap = '/usr/local/bin/nmap';
+		}
 
 		// Runs nmap to find devices on local network
 		nmap.nmap('discover', nmapOptions, function(err, report){
