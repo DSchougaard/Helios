@@ -20,6 +20,7 @@ install:
 	npm install -g bower
 	npm install
 	bower install
+	apt-get install nmap
 
 db_conf:
 	mkdir /data/db
