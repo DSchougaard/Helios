@@ -6,6 +6,7 @@ var nmap = require('node-libnmap');
 var arp = require('node-arp');
 var Q = require('q');
 var _ = require('lodash');
+var ip = require('ip');
 
 
 module.exports = function(app, db){
@@ -34,7 +35,16 @@ module.exports = function(app, db){
 			// Create promise request array
 			var arpRequests = [];
 			var devices = [];
+
+			var heliosIP = ip.address();
+			
 			for( var i = 0 ; i < report[0].neighbors.length ; i++ ){
+				// Filter out Helios' own IP
+				if( report[0].neighbors[i] === heliosIP ){
+					console.log("Filtered IP: " + report[0].neighbors[i]);
+					continue;
+				}
+
 				device = {};
 				device.ip = report[0].neighbors[i];
 				devices.push(device);
