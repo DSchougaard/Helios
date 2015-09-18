@@ -69,8 +69,8 @@ var db = new sqlite3.Database(dbfile);
 console.log("Connected to DB.");
 var createQueries = require("./queries.js");
 db.run(createQueries.createDeviceTable);
-db.run(createQueries.createPasswordTable);
-db.run(createQueries.createCertTable);
+//db.run(createQueries.createPasswordTable);
+//db.run(createQueries.createCertTable);
 console.log("DB init successful.");
 
 // Helios Routes
