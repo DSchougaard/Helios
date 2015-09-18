@@ -150,51 +150,6 @@ module.exports = function(app, db, device_collection){
 	});
 
 
-	// Shutdown device
-	app.post('/api/device/turnoff', function(req, res){
-		var device 		= req.body.device;
-		var username	= req.body.username;
-		var password 	= req.body.password;
-		var id 			= req.body.device.id;
-
-		if( 	req.body.device.mac !== undefined 
-			&& 	req.body.user.username !== undefined
-			&& 	req.body.user.password !== undefined  ){
-			console.log("API::Device::Turnoff:: Re-post detected. Shutting down using username/password.");
-
-		}
-
-		db.get("SELECT * FROM devices WHERE id=?", device.id, function(err, row){
-			if( err ){
-				res.sendStatus(400);
-				console.log(err);
-				return;
-			}
-
-			var device = row;
-
-			var username = "";
-
-			if( device.cert_injected ){
-				// Helios Certificate Injected
-				console.log("API::Device::Turnoff::Attempting to use Certificate.");
-				shutdown_ssh.shutdown(device);
-			}else{
-				// No certificate injected. I require Username/Password.
-
-			}
-
-
-
-
-			shutdown_ssh.shutdown(device, username, password);
-			//shutdown_ssh.shutdown_cert(device);
-			res.sendStatus(202);
-
-		});
-
-	});
-
 
 	// Create new device
 	app.post('/api/device', function(req, res){
