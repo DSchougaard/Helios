@@ -49,7 +49,7 @@ module.exports = function(app, db, device_collection){
 			}
 
 			Q.all(method_calls).then(function(promises){
-				res.json(rows);
+				res.json(rows); 
 			});
 		});
 	});
@@ -123,21 +123,18 @@ module.exports = function(app, db, device_collection){
 				console.log(err);
 				return;
 			}
-			//va1r device = row;
+			
+			var device = row;
 			console.log("API::Device::Shutdown found device %j.", row);
 
-			if( device.cert_injected ){
-				// Helios Certificate Injected
-				var device 			= req.body.device;
-				var user 			= req.body.user;
-				
+			if( device.cert_injected !== undefined && device.cert_injected){				
 				console.log("API::Device::Turnoff::Attempting to use Certificate.");
 				shutdown_ssh.shutdown(device, user.username);
 				res.status(200);
 				res.send("Device shutdown successfully.");
 			}else{
 				// No certificate injected. I require Username/Password.
-				if( user !== undefined ){
+				if( user === undefined ){
 					console.log("API::Device:Shutdown: Cert not injected and no password is present in POST.");
 					res.status(422);
 					res.send('Please provide a password');
@@ -227,9 +224,8 @@ module.exports = function(app, db, device_collection){
 			res.sendStatus(400);
 			return;
 		}
-
-		var stmt = db.prepare("INSERT INTO devices(name, ip, mac, auth_type) VALUES (?,?,?,?)");
-		stmt.run(device.name, device.ip, device.mac, 'password'); // Hard coding authtype first.
+		var stmt = db.prepare("INSERT INTO devices(name, ip, mac, cert_injected) VALUES (?,?,?,?)");
+		stmt.run(device.name, device.ip, device.mac, false); // Hard coding authtype first.
 		stmt.finalize();
 
 		//console.log("API::Device::POST::Sending HTTP status 200.");
