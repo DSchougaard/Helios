@@ -16,7 +16,7 @@ exports.createDeviceTable = "CREATE TABLE IF NOT EXISTS devices(\
 	ip 						TEXT 				NOT NULL, \
 	mac 					TEXT 				NOT NULL, \
 	ssh_username 			TEXT				,\
-	auth_type 				TEXT 				NOT NULL \
+	cert_injected 			BOOLEAN				NOT NULL \
 );"
 
 
@@ -30,7 +30,6 @@ exports.createPasswordTable = "CREATE TABLE IF NOT EXISTS password_auth(\
 	FOREIGN KEY(device_id) REFERENCES devices(id) \
 );"
 
-
 //ID | deviceID | Cert
 exports.createCertTable = "CREATE TABLE IF NOT EXISTS cert_auth(\
 	id 						INT PRIMARY KEY		NOT NULL, \
@@ -38,4 +37,3 @@ exports.createCertTable = "CREATE TABLE IF NOT EXISTS cert_auth(\
 	cert 					BLOB 				NOT NULL, \
 	FOREIGN KEY(device_id) REFERENCES devices(id) \
 );"
-

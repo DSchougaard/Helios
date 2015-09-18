@@ -33,7 +33,7 @@ module.exports.shutdown = function(device, username, password){
 
 
 
-module.exports.shutdown_cert = function(device){
+module.exports.shutdown_cert = function(device, username){
   var Client = require('ssh2').Client;
   var conn = new Client;
 
@@ -52,7 +52,7 @@ module.exports.shutdown_cert = function(device){
 	}).connect({
 		host: device.ip,
 		port: 22,
-		username: 'heliosshutdownagent',
+		username: username,
 		privateKey: require('fs').readFileSync('ssh/id_rsa')
 	});
 

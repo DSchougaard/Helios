@@ -85,7 +85,7 @@ module.exports = function(app, db, device_collection){
 
 		console.log("API::Device::Wake::"+id);
 
-		db.all("SELECT mac FROM devices WHERE id="+id, function(err, rows){
+		db.all("SELECT mac FROM devices WHERE id=?", id, function(err, rows){
 			if(err){ 
 				res.sendStatus(400);
 				return;
@@ -113,6 +113,46 @@ module.exports = function(app, db, device_collection){
 
 	});
 
+	app.post('/api/device/shutdown', function(req, res){
+		var device 			= req.body.device;
+		var user 			= req.body.user;
+
+		db.get("SELECT * FROM devices WHERE id=?", device.id, function(err, row){
+			if(err){
+				res.sendStatus(400);
+				console.log(err);
+				return;
+			}
+			//va1r device = row;
+			console.log("API::Device::Shutdown found device %j.", row);
+
+			if( device.cert_injected ){
+				// Helios Certificate Injected
+				var device 			= req.body.device;
+				var user 			= req.body.user;
+				
+				console.log("API::Device::Turnoff::Attempting to use Certificate.");
+				shutdown_ssh.shutdown(device, user.username);
+				res.status(200);
+				res.send("Device shutdown successfully.");
+			}else{
+				// No certificate injected. I require Username/Password.
+				if( user !== undefined ){
+					console.log("API::Device:Shutdown: Cert not injected and no password is present in POST.");
+					res.status(422);
+					res.send('Please provide a password');
+					return;
+				}
+
+				console.log("API::Device::Shutdown: Using username and password for shutdown.");
+				shutdown_ssh.shutdown(device, user.username, user.password);
+				res.status(200);
+				res.send("Device shutdown successfully.");
+			}
+		});
+	});
+
+
 	// Shutdown device
 	app.post('/api/device/turnoff', function(req, res){
 		var device 		= req.body.device;
@@ -120,7 +160,14 @@ module.exports = function(app, db, device_collection){
 		var password 	= req.body.password;
 		var id 			= req.body.device.id;
 
-		db.get("SELECT * FROM devices WHERE id="+id, function(err, row){
+		if( 	req.body.device.mac !== undefined 
+			&& 	req.body.user.username !== undefined
+			&& 	req.body.user.password !== undefined  ){
+			console.log("API::Device::Turnoff:: Re-post detected. Shutting down using username/password.");
+
+		}
+
+		db.get("SELECT * FROM devices WHERE id=?", device.id, function(err, row){
 			if( err ){
 				res.sendStatus(400);
 				console.log(err);
@@ -128,6 +175,21 @@ module.exports = function(app, db, device_collection){
 			}
 
 			var device = row;
+
+			var username = "";
+
+			if( device.cert_injected ){
+				// Helios Certificate Injected
+				console.log("API::Device::Turnoff::Attempting to use Certificate.");
+				shutdown_ssh.shutdown(device);
+			}else{
+				// No certificate injected. I require Username/Password.
+
+			}
+
+
+
+
 			shutdown_ssh.shutdown(device, username, password);
 			//shutdown_ssh.shutdown_cert(device);
 			res.sendStatus(202);
