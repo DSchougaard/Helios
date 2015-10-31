@@ -1,3 +1,6 @@
+SSL_SUBJ = /C=DK/ST=NA/L=Copenhagen/O=Schougaard Technologies/CN=localhost
+
+
 all:
 	npm install
 	bower install
@@ -7,12 +10,12 @@ update:
 	bower update
 
 cert:
-	mkdir -p ssl
-	openssl genrsa -out ssl/helios-key.pem 4096
-	openssl req -new -sha256 -key ssl/helios-key.pem -out ssl/helios-csr.pem -subj "/C=DK/ST=NA/L=Copenhagen/O=Schougaard Technologies/CN=localhost"
-	openssl x509 -req -in ssl/helios-csr.pem -signkey ssl/helios-key.pem -out ssl/helios-cert.pem
+	mkdir -p crypto/ssl
+	openssl genrsa -out crypto/ssl/helios-key.pem 4096
+	openssl req -new -sha256 -key crypto/ssl/helios-key.pem -out crypto/ssl/helios-csr.pem -subj $(SSL_SUBJ)
+	openssl x509 -req -in crypto/ssl/helios-csr.pem -signkey crypto/ssl/helios-key.pem -out crypto/ssl/helios-cert.pem
 ssh:
-	mkdir -p ssh
+	mkdir -p crypto/ssh
 	ssh-keygen -b 4096 -t rsa -f ssh/id_rsa -q -N ""
 
 
