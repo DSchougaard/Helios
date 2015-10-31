@@ -67,7 +67,7 @@ var sqlite3 = require('sqlite3').verbose();
 var dbfile = 'helios.db';
 var db = new sqlite3.Database(dbfile);
 console.log("Connected to DB.");
-var createQueries = require("./queries.js");
+var createQueries = require("./helpers/queries.js");
 db.run(createQueries.createDeviceTable);
 //db.run(createQueries.createPasswordTable);
 //db.run(createQueries.createCertTable);

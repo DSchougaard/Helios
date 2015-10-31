@@ -9,7 +9,7 @@ var ObjectId = require('mongodb').ObjectID
 /*
 	Own Modules
 */
-var shutdown_ssh = require('./../shutdown_ssh');
+var shutdown_ssh = require('./../helpers/shutdown_ssh');
 
 /*
 	device = {
