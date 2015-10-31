@@ -22,6 +22,6 @@
     "lodash": "^3.7.0",
     "suppose":"*",
     "ip":"*",
-    "ssh2shell":"*"
+    "ssh2shell":"~1.4.1"
    }
 }

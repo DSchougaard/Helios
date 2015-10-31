@@ -51,8 +51,6 @@ module.exports = function(app, db){
 		});
 
 		SSH.connect();
-
-
 	});
 
 	app.post('/api/config/cert', function(req, res){
@@ -126,8 +124,8 @@ module.exports = function(app, db){
 		SSH.connect();
 	});
 	
-	app.post('/api/config/shutdown', function(req, res){
-		console.log("API::Config::Shutdown: Elevating Helios shutdown user, to allow shutdown on target: %j");
+	app.post('/api/config/shutdown_permission', function(req, res){
+		console.log("API::Config::Shutdown: Elevating Helios shutdown user's permissions, to allow shutdown on target: %j");
 		
 		var ip				= req.body.device.ip;
 		var port 			= req.body.device.port || '22';
