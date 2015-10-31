@@ -8,6 +8,6 @@ module.exports = function(app, db, device_collection){
 	require('./routes/config')(app, db);
 
 	app.get('*', function(req, res) {
-		res.sendFile( __dirname + '/public/index.html'); 
+		res.sendFile( __dirname + '/public/views/index.html'); 
 	});
 } 

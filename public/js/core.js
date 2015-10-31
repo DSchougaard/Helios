@@ -4,32 +4,32 @@ helios.config(function($routeProvider, $locationProvider){
 	$routeProvider
 		// Main View : List of Devices
 		.when('/', {
-			templateUrl		: 'pages/list.html',
+			templateUrl		: 'views/partials/list.html',
 			controller 		: 'listController'
 		})
 
 		// View for Adding a device
 		.when('/add', {
-			templateUrl		: 'pages/add.html',
+			templateUrl		: 'views/partials/add.html',
 			controller 		: 'addDeviceController'
 		})
 
 		.when('/scan', {
-			templateUrl		: 'pages/scan.html',
+			templateUrl		: 'views/partials/scan.html',
 			controller 		: 'scanNetworkController'
 		})
 
 		.when('/device/:id/edit', {
-			templateUrl		: 'pages/add.html',
+			templateUrl		: 'views/partials/add.html',
 			controller 		: 'editDeviceController'
 		})
 
 		.when('/error', {
-			templateUrl		: 'pages/error.html'
+			templateUrl		: 'views/partials/error.html'
 		})
 
 		.otherwise({
-			redirectTo 		: 'pages/error.html'
+			redirectTo 		: 'views/partials/error.html'
 		});
 	$locationProvider.html5Mode(true)
 });
