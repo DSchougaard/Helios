@@ -136,27 +136,47 @@ helios.controller('listController', function($scope, $route, $http, $modal, Devi
 	$scope.act = function(device){
 		var api_selection = '/api/device/';
 		if( device.online ){
-		
-			var instance = $modal.open({
-				templateUrl : 'pages/popups/password.html',
-				controller : 'passwordPromtController',
-				resolve: {
-					promtForUsername : function(){
-						return !device.store_ssh_username;
+			$http.post(api_selection + 'shutdown', {device:device})
+				.success( function(data){
+					console.log("Success: " + data);
+				}).error(function(data, status){
+					if( status !== 422 && data !== 'Please provide a password' ){
+						console.log("Error: "  + data)
+						return;
 					}
-				}
-			});
 
-			instance.result.then(function(details){
-				$http.post(api_selection + 'turnoff', {device: device, username:details.username,  password: details.password})
-					.success(function(data){
-						console.log("Successfully turned off %j.", device);
-						DeviceBroker.setOnline(device, false);
-					})
-					.error(function(data){
-						console.log("Shutdown error!");
+					var instance = $modal.open({
+						templateUrl : 'pages/popups/password.html',
+						controller : 'passwordPromtController',
+						resolve: {
+							promtForUsername : function(){
+								return !device.store_ssh_username;
+							}
+						}
+					});
+
+					instance.result.then(function(details){
+
+						var json = {
+							device: device,
+							user: {
+								username: details.username,
+								password: details.password
+							} 
+						}
+
+
+						$http.post(api_selection + 'shutdown', json)
+							.success(function(data){
+								console.log("Successfully turned off %j.", device);
+								DeviceBroker.setOnline(device, false);
+							})
+							.error(function(data){
+								console.log("Shutdown error!");
+							});
 					});
 			});
+
 
 		}else{
 			$http.get('/api/device/wake/' + device.id)
