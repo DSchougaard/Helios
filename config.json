@@ -2,8 +2,8 @@
 	"port" 				: "8080",
 	"ssl_port"			: "8888",
 	"ssl_enabled" 		: true,
-	"ssl_key"			: "ssl/helios-key.pem",
-	"ssl_cert" 			: "ssl/helios-cert.pem",
+	"ssl_key"			: "crypto/ssl/helios-key.pem",
+	"ssl_cert" 			: "crypto/ssl/helios-cert.pem",
 	"ssh_key"			: "ssh/id_rsa",
 	"db_url" 			: "mongodb://localhost:27017/helios",
 	"ssh_user"			: "heliosshutdownuser"
