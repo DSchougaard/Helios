@@ -24,7 +24,7 @@ module.exports.injectCert = function(targetUser){
 	var heliosHost 			= getHeliosHost();
 
 	return [
-				"wget --no-check-certificate " +  heliosHost +"/api/helios/cert -O HeliosCertificate.key",
+				"wget -t 3 -T 20 --no-check-certificate " +  heliosHost +"/api/helios/cert -O HeliosCertificate.key",
 				"msg:Helios certificate downloaded.",
 				"sudo mkdir -p ~/../" + targetUser +"/.ssh",
 				"sudo chown " + targetUser + ":" + targetUser +" ~/../" + targetUser +"/.ssh",
