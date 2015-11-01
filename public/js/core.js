@@ -218,19 +218,74 @@ helios.controller('passwordPromtController', function($scope, $modalInstance, pr
 	}
 })
 
-helios.controller('addDeviceController', function($scope, $rootScope, $location, $route, $http, DeviceBroker) {
+helios.controller('waitPromtController', function($scope, $modalInstance){
+
+})
+
+function addDeviceController_injectUser(q, http, payload){
+	var deferred = q.defer();
+	console.log("Injecting User with payload: %j.", payload);
+
+	http.post('/api/config/user', payload)
+		.then(function(data, status){
+			deferred.resolve("User injected.");
+		}, function(reason, status){
+			deferred.reject(reason)
+		});
+
+	return deferred.promise;
+}
+
+function addDeviceController_injectCert(q, http, payload){
+	var deferred = q.defer();
+	console.log("Injecting Certificate with payload: %j.", payload);
+
+	http.post('/api/config/cert', payload)
+		.then(function(data, status){
+			deferred.resolve("Certificate injected.");
+		}, function(reason, status){
+			deferred.reject(reason)
+		});
+
+	return deferred.promise;
+}
+
+function addDeviceController_injectPermissions(q, http, payload){
+	var deferred = q.defer();
+	console.log("Injecting Permissions with payload: %j.", payload);
+
+	http.post('/api/config/shutdown_permission', payload)
+		.then(function(data, status){
+			deferred.resolve("Permissions injected.");
+		}, function(reason, status){
+			deferred.reject(reason)
+		});
+
+	return deferred.promise;
+}
+
+
+
+helios.controller('addDeviceController', function($scope, $rootScope, $location, $route, $http, $modal, DeviceBroker, $q) {
 	// Setup page variables
 	$scope.OKButton = "Add";
-	$scope.sshShutdown = true;
-	$scope.daemonShutdown = true;
 
-	$scope.sshUser = 'helios';
-	$scope.injectCert = true;
+	$scope.storeUser = true;
+
+	$scope.injectOpts = {};
+	$scope.injectOpts.user = true;
+	$scope.injectOpts.cert = true;
+	$scope.injectOpts.permissions = true;
 
 	// Create device JSON object
 	$scope.device = {};
 
+	// Injection Progress
+	$scope.injecting = false;
+
+
 	// Hacky selection transfer from Scan page
+	// TODO: Fix.
 	if( $rootScope.device !== undefined ){
 		$scope.device = $rootScope.device;
 		$rootScope.device = null;
@@ -239,32 +294,93 @@ helios.controller('addDeviceController', function($scope, $rootScope, $location,
 	}
 
 	$scope.test = function(device){
+		var loadingModal = $modal.open({
+			animation: true,
+			templateUrl: 'views/partials/popups/wait.html',
+			controller: 'waitPromtController'
+		});
 
-		target = {};
-		target.device = device;
-		target.username = "test";
-		target.password = "password";
+		setTimeout( function(){
+			console.log("Timeout!");
+			loadingModal.close();
+		}, 3000);
 
-
-		console.log("Testing: %j.", target);
-		$http.post('/api/config/cert', target)
-			.success( function(data, status, headers, config){
-				console.log("Test: Success.");
-			})
-			.error( function(data, status, headers, config){
-				console.log("Test: Error.");
-			});
 	}
 
 	$scope.submit = function(device){
+
+		$http.post('/api/device', device)
+		.then(function(data, status){
+			// Add newly added device to DeviceBroker
+			DeviceBroker.add(device);
+			// Set Device to online, for Usability
+			//DeviceBroker.setOnline(device, true);
+
+			// Remote config selected
+
+			if( !$scope.storeUser ){
+				console.log("Remote configuration not selected");
+				return;
+			}
+
+			var instance = $modal.open({
+				templateUrl : 'views/partials/popups/password.html',
+				controller : 'passwordPromtController',
+				resolve: {
+					promtForUsername : function(){
+						return !device.store_ssh_username;
+					}
+				}
+			});
+
+			instance.result.then(function(user){
+
+				console.log("Remotely configuring");
+				
+				var inject = {
+					username : $scope.injectOpts.user? undefined : $scope.device.shutdownUsername
+				}
+
+				var injectOpts = $scope.injectOpts;
+
+				var loadingModal = $modal.open({
+					animation: true,
+					templateUrl: 'views/partials/popups/wait.html',
+					controller: 'waitPromtController'
+				});
+
+				$http.post('/api/config/remote', { injectOpts, inject, device, user })
+				.then(function(result){
+					console.log("Injection successful.");
+					loadingModal.close();
+				}, function(error){
+					console.log("Injection error!");
+					console.log(error);
+				});
+			});
+		
+		}, function(error, status){
+
+		});
+
+
+		
+
+	};
+
+
+	/*
+
 		if( device.sshUsername == 'helios' ){
 			console.log("Preparing to inject Helios user.");
 			// Set sshUsername to null, to use default username.
 			device.sshUsername = null;
 		}
 
-	 
+*/
 
+
+		/*
 		$http.post('/api/device', device)
 		.success( function(data, status, headers, config){		
 			DeviceBroker.add(device);
@@ -273,8 +389,7 @@ helios.controller('addDeviceController', function($scope, $rootScope, $location,
 		.error( function(data, status, headers, config){
 			console.log("Error!");
 			$location.path('/error');
-		});
-	};
+		});*/
 
 	$scope.cancel = function(){
 		$location.path('/');

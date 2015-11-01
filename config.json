@@ -7,5 +7,4 @@
 	"ssh_key"			: "ssh/id_rsa",
 	"db_url" 			: "mongodb://localhost:27017/helios",
 	"ssh_user"			: "heliosshutdownuser"
-
 }

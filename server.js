@@ -27,6 +27,9 @@ var https 			= require('https');
 */
 
 
+// Global Base path, for relative includes
+global.__base = __dirname + '/';
+
 var config = require("./config.json");
 
 // Database Variables
@@ -73,6 +76,15 @@ db.run(createQueries.createDeviceTable);
 //db.run(createQueries.createCertTable);
 console.log("DB init successful.");
 
+
+/*sshCommands = require('./helpers/sshCommands.js');
+
+var device = { ip:"1.1.1.1"}
+var user = {username: "daniel", password:"test"}
+
+
+console.log("test: %s", sshCommands.injectUser("daniel").concat(sshCommands.injectCert(device, user, "Sofie")));
+*/
 // Helios Routes
 require('./app')(app, db, device_collection);
 

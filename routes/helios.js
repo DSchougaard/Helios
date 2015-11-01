@@ -3,7 +3,7 @@ var fs = require('fs');
 module.exports = function(app, db){
 
 	app.get('/api/helios/cert', function(req, res){
-		fs.readFile('ssh/id_rsa.pub', function(err, data){
+		fs.readFile('crypto/ssh/id_rsa.pub', function(err, data){
 			if(err){
 				console.log("API::Helios::Cert: Error reading public key.");
 				res.sendStatus(500);
