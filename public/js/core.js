@@ -129,10 +129,6 @@ helios.controller('listController', function($scope, $route, $http, $modal, Devi
 		});
 
 
-	$scope.deviceStatus = function(device){
-
-	}
-
 	$scope.act = function(device){
 		var api_selection = '/api/device/';
 		if( device.online ){
@@ -146,7 +142,7 @@ helios.controller('listController', function($scope, $route, $http, $modal, Devi
 					}
 
 					var instance = $modal.open({
-						templateUrl : 'pages/popups/password.html',
+						templateUrl : 'views/partials/popups/password.html',
 						controller : 'passwordPromtController',
 						resolve: {
 							promtForUsername : function(){
@@ -343,36 +339,11 @@ helios.controller('addDeviceController', function($scope, $rootScope, $location,
 				});
 			});
 		}, function(error, status){
-
+			loadingModal.close();
 		});
-
-
-		
 
 	};
 
-
-	/*
-
-		if( device.sshUsername == 'helios' ){
-			console.log("Preparing to inject Helios user.");
-			// Set sshUsername to null, to use default username.
-			device.sshUsername = null;
-		}
-
-*/
-
-
-		/*
-		$http.post('/api/device', device)
-		.success( function(data, status, headers, config){		
-			DeviceBroker.add(device);
-			$location.path('/');
-		})
-		.error( function(data, status, headers, config){
-			console.log("Error!");
-			$location.path('/error');
-		});*/
 
 	$scope.cancel = function(){
 		$location.path('/');
