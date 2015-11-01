@@ -40,7 +40,7 @@ module.exports.injectCert = function(targetUser){
 module.exports.injectPermissions = function(targetUser){
 	var heliosHost 			= getHeliosHost();
 
-	return [	"wget --no-check-certificate " +  heliosHost +"/api/helios/sudoers -O ~/" +targetUser,
+	return [	"wget -t 3 -T 20 --no-check-certificate " +  heliosHost +"/api/helios/sudoers -O ~/" +targetUser,
 				"sudo chmod 0440 ~/" +targetUser,
 				"sudo chown root:root ~/" +targetUser,
 				"sudo mv ~/" +targetUser + " /etc/sudoers.d/" ];
