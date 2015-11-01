@@ -293,33 +293,16 @@ helios.controller('addDeviceController', function($scope, $rootScope, $location,
 		$scope.device = {};
 	}
 
-	$scope.test = function(device){
-		var loadingModal = $modal.open({
-			animation: true,
-			templateUrl: 'views/partials/popups/wait.html',
-			controller: 'waitPromtController'
-		});
-
-		setTimeout( function(){
-			console.log("Timeout!");
-			loadingModal.close();
-		}, 3000);
-
-	}
-
 	$scope.submit = function(device){
-
 		$http.post('/api/device', device)
 		.then(function(data, status){
 			// Add newly added device to DeviceBroker
 			DeviceBroker.add(device);
-			// Set Device to online, for Usability
-			//DeviceBroker.setOnline(device, true);
 
 			// Remote config selected
-
 			if( !$scope.storeUser ){
 				console.log("Remote configuration not selected");
+				$location.path('/');
 				return;
 			}
 
@@ -353,12 +336,12 @@ helios.controller('addDeviceController', function($scope, $rootScope, $location,
 				.then(function(result){
 					console.log("Injection successful.");
 					loadingModal.close();
+					$location.path('/');
 				}, function(error){
 					console.log("Injection error!");
 					console.log(error);
 				});
 			});
-		
 		}, function(error, status){
 
 		});
