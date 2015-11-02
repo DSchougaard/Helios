@@ -4,6 +4,8 @@ var ping = require('ping');
 var Q = require('q');
 var sanitize = require('mongo-sanitize');
 
+var config = require(__base + 'config.json');
+
 
 var ObjectId = require('mongodb').ObjectID
 /*
@@ -58,7 +60,7 @@ module.exports = function(app, db, device_collection){
 	app.get('/api/device/:id', function(req,res){
 		var id = sanitize(req.params.id);
 
-		db.all("SELECT id,name,ip,mac FROM devices WHERE id=" + id, function(err, rows){
+		db.all("SELECT id,name,ip,mac,ssh_username,cert_injected FROM devices WHERE id=" + id, function(err, rows){
 			if(err){
 				console.log("Device::GET::DB Err");
 				console.log(err);
@@ -179,8 +181,10 @@ module.exports = function(app, db, device_collection){
 			res.sendStatus(400);
 			return;
 		}
-		var stmt = db.prepare("INSERT INTO devices(name, ip, mac, cert_injected) VALUES (?,?,?,?)");
-		stmt.run(device.name, device.ip, device.mac, false); // Hard coding authtype first.
+
+		var username = device.ssh_username || config.ssh_user;
+		var stmt = db.prepare("INSERT INTO devices(name, ip, mac, ssh_username, cert_injected) VALUES (?,?,?,?,?)");
+		stmt.run(device.name, device.ip, device.mac, username, false);
 		stmt.finalize();
 
 		//console.log("API::Device::POST::Sending HTTP status 200.");
@@ -204,10 +208,16 @@ module.exports = function(app, db, device_collection){
 	app.put('/api/device/:id', function(req, res){
 		var id = sanitize(req.params.id);
 
-		console.log("Put: %j.", req.body.device);
+		console.log("Put @ id = %s: %j.",id, req.body.device);
 
-		db.run("UPDATE devices SET name = ?, ip = ?, mac = ?, auth_type = ? WHERE id = ?", 
-		req.body.device.name, req.body.device.ip, req.body.device.mac, "password", id, function(err){
+
+		var cert_injected = req.body.device.cert_injected || false;
+		console.log("CERT: %s", cert_injected);
+
+		db.run("UPDATE devices SET name = ?, ip = ?, mac = ?, ssh_username = ?, cert_injected = ? WHERE id = ?", 
+		req.body.device.name, req.body.device.ip, req.body.device.mac, req.body.ssh_username, cert_injected, id, function(err){
+		
+
 			if(err){
 				console.log("Error: " + err);
 				res.sendStatus(500);

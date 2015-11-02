@@ -290,13 +290,48 @@ helios.controller('addDeviceController', function($scope, $rootScope, $location,
 	}
 
 	$scope.test = function(){
+
+		console.log("Test");
+
+		var device = {
+			id: 26,
+			name: "Virtual",
+			ip: "192.168.1.123",
+			mac: "08:00:27:fe:c0:f6",
+			ssh_username: "heliosshutdownuser",
+			cert_injected: false
+		}
+		
+		device.cert_injected = true;
+
+
+		$http.put('/api/device/' +  device.id, {device: device})
+		.then(function(result){
+			console.log("Remote DB updated");
+		}, function(error){
+			console.log("Remote error");
+		});
+
+
 	}
 
 	$scope.submit = function(device){
-		$http.post('/api/device', device)
+
+		console.log("Submitting device: %j", $scope.device);
+
+		// Override ssh_username based on selection of user
+		if( $scope.storeUser ){
+			$scope.device.ssh_username = $scope.injectOpts.user? undefined : $scope.device.ssh_username;
+		}
+
+		if( $scope.injectOpts.cert ){
+			$scope.device.cert_injected = true;
+		}
+
+		$http.post('/api/device', $scope.device)
 		.then(function(data, status){
 			// Add newly added device to DeviceBroker
-			DeviceBroker.add(device);
+			DeviceBroker.add($scope.device);
 
 			// Remote config selected
 			if( !$scope.storeUser ){
@@ -316,18 +351,29 @@ helios.controller('addDeviceController', function($scope, $rootScope, $location,
 				
 				// Set username to undefined should default username be selected
 				var inject = {
-					username : $scope.injectOpts.user? undefined : $scope.device.shutdownUsername
+					username : $scope.injectOpts.user? undefined : $scope.device.ssh_username
 				}
 
 				var injectOpts = $scope.injectOpts;
-
 				var loadingModal = ModalFactory.generateWaitModal();
-
+				var device = $scope.device;
 				$http.post('/api/config/remote', { injectOpts, inject, device, user })
 				.then(function(result){
 					console.log("Injection successful.");
 					loadingModal.close();
-					$location.path('/');
+
+					// Updating helios database, to show that cert was injected
+					$scope.device.cert_injected = true;
+
+					$http.put('/api/device/' +  $scope.device.id, {device: $scope.device})
+					.then(function(result){
+						console.log("Remote DB updated");
+						$location.path('/');
+					}, function(error){
+						console.log("Remote error");
+					});
+
+
 				}, function(error){
 					console.log("Injection error!");
 					console.log(error);
