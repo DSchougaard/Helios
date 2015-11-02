@@ -25,4 +25,16 @@ module.exports = function(app, db){
 			res.send(data);
 		});
 	});
+
+	app.get('/api/helios/sudoers/:name', function(req, res){
+		var name = req.params.name;
+
+		if( name == "" ){
+			res.sendStatus(400).send("Empty Sudoers name");
+			return;
+		}
+
+		res.header('Content-Type', 'text/plain');
+		res.send(name + " ALL=(ALL) NOPASSWD: /sbin/poweroff, /sbin/reboot, /sbin/shutdown\n");
+	});
 }
