@@ -182,9 +182,14 @@ module.exports = function(app, db, device_collection){
 			return;
 		}
 
-		var username = device.ssh_username || config.ssh_user;
+
+		// Override username with config's username
+		if( device.cert_injected )
+			device.ssh_username = device.ssh_username || config.ssh_user;
+
+		//var username = device.ssh_username || config.ssh_user;
 		var stmt = db.prepare("INSERT INTO devices(name, ip, mac, ssh_username, cert_injected) VALUES (?,?,?,?,?)");
-		stmt.run(device.name, device.ip, device.mac, username, false);
+		stmt.run(device.name, device.ip, device.mac, device.ssh_username, device.cert_injected);
 		stmt.finalize();
 
 		//console.log("API::Device::POST::Sending HTTP status 200.");
