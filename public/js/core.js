@@ -58,6 +58,7 @@ helios.factory('DeviceBroker', function($http, $q){
 			console.log("DeviceBroker::GetAll::Data too old. Fetching new.");
 			broker.update()
 				.success(function(data){
+					console.log("%j", data);
 					deferred.resolve(devices);
 				})
 				.error(function(data){
@@ -267,6 +268,7 @@ helios.controller('addDeviceController', function($scope, $rootScope, $location,
 	$scope.OKButton = "Add";
 
 	$scope.storeUser = true;
+	$scope.userSudoer = true;
 
 	$scope.injectOpts = {};
 	$scope.injectOpts.user = true;
@@ -317,77 +319,109 @@ helios.controller('addDeviceController', function($scope, $rootScope, $location,
 
 	$scope.submit = function(device){
 
+
+		// Verify inserted data
+
+
+
 		console.log("Submitting device: %j", $scope.device);
+
+		var error = undefined;
+		if( $scope.device.mac === undefined || !$scope.device.mac.match(MACRegex) ){	
+			error = "Error: MAC malformed.";
+		}else if( $scope.device.ip === undefined || !$scope.device.ip.match(IPRegex) ){
+			error = "Error: IP malformed.";
+		}else if( $scope.device.name === undefined || !($scope.device.name.length > 0) ){
+			error = "Error: Device name too short";
+		}
+		if( error ){
+			console.log(error);
+			return;
+		}
 
 		// Override ssh_username based on selection of user
 		if( $scope.storeUser ){
 			$scope.device.ssh_username = $scope.injectOpts.user? undefined : $scope.device.ssh_username;
 		}
 
+		// User selected not to store shutdown info
+		if( !$scope.storeUser ){
+			// Make sure  cert opts are false
+			$scope.device.cert_injected = false;
+
+			$http.post('/api/device', $scope.device)
+			.then(function(result){
+				console.log("Device added without remote config");	
+				DeviceBroker.add($scope.device);
+				$location.path('/');
+			}, function(error){
+				console.log("Error adding device, without remote config");
+				ModalFactory.generateErrorModal("An error occured.", "An error occured while submitting device info. Please re-check the information and try again.");
+			});
+			return;
+		}  
+
+		// User chose to select custom user
+		if( $scope.injectOpts.user !== undefined ){
+
+		}
+
+
 		if( $scope.injectOpts.cert ){
 			$scope.device.cert_injected = true;
 		}
 
-		$http.post('/api/device', $scope.device)
-		.then(function(data, status){
-			// Add newly added device to DeviceBroker
-			DeviceBroker.add($scope.device);
 
-			// Remote config selected
-			if( !$scope.storeUser ){
-				console.log("Remote configuration not selected");
-				// early return and change path
-				$location.path('/');
-				return;
+		// Promt user for password
+		var passwordModal = ModalFactory.generatePasswordModal();
+
+		// When username and password entry is gotten, perform remote configuration
+		passwordModal.result.then(function(user){
+
+			console.log("Remotely configuring");
+			
+			// Set username to undefined should default username be selected
+			var inject = {
+				username : $scope.injectOpts.user? undefined : $scope.device.ssh_username
 			}
 
-			// Promt user for password
-			var passwordModal = ModalFactory.generatePasswordModal();
+			var injectOpts = $scope.injectOpts;
+			var loadingModal = ModalFactory.generateWaitModal();
+			var device = $scope.device;
+			$http.post('/api/config/remote', { injectOpts, inject, device, user })
+			.then(function(result){
+				console.log("Injection successful.");
+				loadingModal.close();
 
-			// When username and password entry is gotten, perform remote configuration
-			passwordModal.result.then(function(user){
+				// Cert was injected successfully!
+				$scope.device.cert_injected = true;
+				$scope.device.ssh_username = inject.username;
 
-				console.log("Remotely configuring");
-				
-				// Set username to undefined should default username be selected
-				var inject = {
-					username : $scope.injectOpts.user? undefined : $scope.device.ssh_username
-				}
-
-				var injectOpts = $scope.injectOpts;
-				var loadingModal = ModalFactory.generateWaitModal();
-				var device = $scope.device;
-				$http.post('/api/config/remote', { injectOpts, inject, device, user })
+				$http.post('/api/device', $scope.device)
 				.then(function(result){
-					console.log("Injection successful.");
-					loadingModal.close();
-
-					// Updating helios database, to show that cert was injected
-					$scope.device.cert_injected = true;
-
-					$http.put('/api/device/' +  $scope.device.id, {device: $scope.device})
-					.then(function(result){
-						console.log("Remote DB updated");
-						$location.path('/');
-					}, function(error){
-						console.log("Remote error");
-					});
-
-
+					console.log("Device added after remotely configuring");
+					DeviceBroker.add($scope.device);
+					$location.path('/');
 				}, function(error){
-					console.log("Injection error!");
-					console.log(error);
-
-					loadingModal.close();
-
-					ModalFactory.generateErrorModal("An error occured.", 
-						"An error occured while remotely configuring the device. Until further notice, use username and password for shutdown of target.");
-
+					console.log("Error adding device, without remote config");
+					ModalFactory.generateErrorModal("An error occured.", "An error occured while submitting device info. Please re-check the information and try again.");
 				});
+
+			}, function(error){
+				console.log("Injection error!");
+				console.log(error);
+				console.log("Adding device, only for username/password");
+
+				$scope.device.cert_injected = false;
+				$scope.device.ssh_username = undefined;
+
+				loadingModal.close();
+
+				ModalFactory.generateErrorModal("An error occured.", 
+					"An error occured while remotely configuring the device. Until further notice, use username and password for shutdown of target.");
+
 			});
-		}, function(error, status){
-			ModalFactory.generateErrorModal("An error occured.", "An error occured while submitting device info. Please re-check the information and try again.");
-		});
+		});	
 
 	};
 
@@ -401,14 +435,14 @@ helios.controller('editDeviceController', function($scope, $routeParams, $rootSc
 	$scope.OKButton = "Update";
 	var device 	= $http.get('/api/device/' + $routeParams.id)
 		.success( function(data){
-			$scope.device 		= {};
-			$scope.device.id 	= data.id;
+			$scope.device 		= data;
+			/*$scope.device.id 	= data.id;
 			$scope.device.name 	= data.name;
 			$scope.device.ip 	= data.ip;
-			$scope.device.mac 	= data.mac;
-			$scope.device.store_ssh_username = data.store_ssh_username;
-			if( $scope.device.store_ssh_username )
-				$scope.device.ssh_username = data.ssh_username;
+			$scope.device.mac 	= data.mac;*/
+			//$scope.device.store_ssh_username = data.store_ssh_username;
+			//if( $scope.device.store_ssh_username )
+			//	$scope.device.ssh_username = data.ssh_username;
 		})
 		.error(function(data){
 			console.log("Error in getting device to edit.");
@@ -503,7 +537,7 @@ helios.directive('macAddress', function(){
 		link: function($scope, $element, $attrs, ngModel) {
 			$scope.$watch($attrs.ngModel, function(value) {
 				var isValid = (MACRegex.test(value));
-				ngModel.$setValidity('invalidIP', isValid);
+				ngModel.$setValidity('invalidḾac', isValid);
 			});
 		}
 	}
