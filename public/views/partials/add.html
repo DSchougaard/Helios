@@ -1,13 +1,13 @@
 <!-- <div ng-controller="addDeviceController"> -->
 
 
-<form name="addDeviceForm" class="form-horizontal" novalidate>
+<form  name="addDeviceForm" class="form-horizontal" novalidate >
     <legend> Device Details </legend>
     <!-- Device Name -->
     <div class="form-group">
         <label for="name" class="control-label col-md-2">Device Name</label>
         <div class="col-md-10">
-            <input type="text" name="name" class="form-control" ng-model="device.name" placeholder="Name" required ng-minlength="5">
+            <input type="text" name="name" class="form-control" ng-model="device.name" placeholder="Name" required ng-minlength="1">
             <p ng-show="addDeviceForm.name.$invalid && addDeviceForm.name.$dirty" class="help-block">Invalid device name</p>
         </div>
     </div>
@@ -29,7 +29,7 @@
             <p ng-show="addDeviceForm.mac.$invalid && addDeviceForm.mac.$dirty" class="help-block">Invalid MAC address</p>
 
         </div>
-    </div>
+    </div>    
 
 
     <!-- Save User for Shutdown Option -->
@@ -92,7 +92,7 @@
         <div class="form-group" ng-show="injectOpts.user == false">
             <label for="" class="control-label col-md-2"> Username </label>
             <div class="col-md-10">
-                <input type="text" name="ssh_username" mac-address class="form-control" ng-model="device.ssh_username" placeholder="Username" required>
+                <input type="text" name="ssh_username" class="form-control" ng-model="device.ssh_username" placeholder="Username">
             </div>
         </div>
 
@@ -123,7 +123,7 @@
     <div class="form-group">
         <label class="control-label col-md-2"></label>
         <div class="col-md-10 btn-group pull-right" role="group" aria-label="..?">
-            <button class="btn btn-success" ng-click="submit(device)" ng-disabled="addMachineForm.$invalid">{{OKButton}}</button>
+            <button class="btn btn-success" ng-click="submit()" ng-disabled="addDeviceForm.$invalid">{{OKButton}}</button>
             <button class="btn btn-danger" ng-click="cancel()">Cancel</button>
 
             <button class="btn btn-info" ng-click="test()">Cancel</button>
