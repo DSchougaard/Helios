@@ -112,10 +112,12 @@ helios.factory('DeviceBroker', function($http, $q){
 	return broker;
 })
 
+
+
 helios.controller('mainController', function($scope, $http) {
 });
 
-helios.controller('listController', function($scope, $route, $http, $modal, DeviceBroker) {
+helios.controller('listController', function($scope, $route, $http, $modal, DeviceBroker, ModalFactory) {
 	// Env Variables
 	$scope.loading = true;
 
@@ -141,18 +143,8 @@ helios.controller('listController', function($scope, $route, $http, $modal, Devi
 						return;
 					}
 
-					var instance = $modal.open({
-						templateUrl : 'views/partials/popups/password.html',
-						controller : 'passwordPromtController',
-						resolve: {
-							promtForUsername : function(){
-								return !device.store_ssh_username;
-							}
-						}
-					});
-
-					instance.result.then(function(details){
-
+					var passwordModal = ModalFactory.generatePasswordModal();
+					passwordModal.result.then(function(details){
 						var json = {
 							device: device,
 							user: {
@@ -160,7 +152,6 @@ helios.controller('listController', function($scope, $route, $http, $modal, Devi
 								password: details.password
 							} 
 						}
-
 
 						$http.post(api_selection + 'shutdown', json)
 							.success(function(data){
@@ -172,8 +163,6 @@ helios.controller('listController', function($scope, $route, $http, $modal, Devi
 							});
 					});
 			});
-
-
 		}else{
 			$http.get('/api/device/wake/' + device.id)
 				.success(function(data) {
@@ -212,57 +201,68 @@ helios.controller('passwordPromtController', function($scope, $modalInstance, pr
 	$scope.cancel = function(){
 		$modalInstance.dismiss('cancel');
 	}
-})
+});
 
-helios.controller('waitPromtController', function($scope, $modalInstance){
 
-})
+helios.controller('passwordModalController', function($scope, $modalInstance){
+	$scope.promtForUsername = true;
+	$scope.ok = function(){
+		$modalInstance.close({username:$scope.username, password:$scope.password});
+	}
+	$scope.cancel = function(){
+		$modalInstance.dismiss('cancel');
+	}
+});
 
-function addDeviceController_injectUser(q, http, payload){
-	var deferred = q.defer();
-	console.log("Injecting User with payload: %j.", payload);
+helios.controller('errorModalController', function($scope, $modalInstance, content){
+	$scope.content = content;
+	$scope.ok = function(){
+		$modalInstance.close();
+	}
+});
 
-	http.post('/api/config/user', payload)
-		.then(function(data, status){
-			deferred.resolve("User injected.");
-		}, function(reason, status){
-			deferred.reject(reason)
+
+helios.factory('ModalFactory', function($modal){
+	var service = {
+		generateErrorModal: generateErrorModal,
+		generatePasswordModal: generatePasswordModal,
+		generateWaitModal: generateWaitModal
+	}
+	return service;
+
+	///////////////
+
+	function generateErrorModal(title, message){
+
+		return $modal.open({
+			templateUrl: '/views/partials/popups/error.html',
+			controller: 'errorModalController',
+			resolve:{
+				content: function(){
+					return {title, message};
+				}
+			}
 		});
+	}
 
-	return deferred.promise;
-}
-
-function addDeviceController_injectCert(q, http, payload){
-	var deferred = q.defer();
-	console.log("Injecting Certificate with payload: %j.", payload);
-
-	http.post('/api/config/cert', payload)
-		.then(function(data, status){
-			deferred.resolve("Certificate injected.");
-		}, function(reason, status){
-			deferred.reject(reason)
+	function generatePasswordModal(){
+		return $modal.open({
+			templateUrl: '/views/partials/popups/password.html',
+			controller: 'passwordModalController'
 		});
+	}
 
-	return deferred.promise;
-}
-
-function addDeviceController_injectPermissions(q, http, payload){
-	var deferred = q.defer();
-	console.log("Injecting Permissions with payload: %j.", payload);
-
-	http.post('/api/config/shutdown_permission', payload)
-		.then(function(data, status){
-			deferred.resolve("Permissions injected.");
-		}, function(reason, status){
-			deferred.reject(reason)
+	function generateWaitModal(){
+		return $modal.open({
+			templateUrl: '/views/partials/popups/wait.html',
 		});
-
-	return deferred.promise;
-}
-
+	}
+});
 
 
-helios.controller('addDeviceController', function($scope, $rootScope, $location, $route, $http, $modal, DeviceBroker, $q) {
+
+
+helios.controller('addDeviceController', function($scope, $rootScope, $location, $route, $http, $modal, DeviceBroker, $q, ModalFactory) {
 	// Setup page variables
 	$scope.OKButton = "Add";
 
@@ -289,6 +289,9 @@ helios.controller('addDeviceController', function($scope, $rootScope, $location,
 		$scope.device = {};
 	}
 
+	$scope.test = function(){
+	}
+
 	$scope.submit = function(device){
 		$http.post('/api/device', device)
 		.then(function(data, status){
@@ -298,35 +301,27 @@ helios.controller('addDeviceController', function($scope, $rootScope, $location,
 			// Remote config selected
 			if( !$scope.storeUser ){
 				console.log("Remote configuration not selected");
+				// early return and change path
 				$location.path('/');
 				return;
 			}
 
-			var instance = $modal.open({
-				templateUrl : 'views/partials/popups/password.html',
-				controller : 'passwordPromtController',
-				resolve: {
-					promtForUsername : function(){
-						return !device.store_ssh_username;
-					}
-				}
-			});
+			// Promt user for password
+			var passwordModal = ModalFactory.generatePasswordModal();
 
-			instance.result.then(function(user){
+			// When username and password entry is gotten, perform remote configuration
+			passwordModal.result.then(function(user){
 
 				console.log("Remotely configuring");
 				
+				// Set username to undefined should default username be selected
 				var inject = {
 					username : $scope.injectOpts.user? undefined : $scope.device.shutdownUsername
 				}
 
 				var injectOpts = $scope.injectOpts;
 
-				var loadingModal = $modal.open({
-					animation: true,
-					templateUrl: 'views/partials/popups/wait.html',
-					controller: 'waitPromtController'
-				});
+				var loadingModal = ModalFactory.generateWaitModal();
 
 				$http.post('/api/config/remote', { injectOpts, inject, device, user })
 				.then(function(result){
@@ -336,10 +331,16 @@ helios.controller('addDeviceController', function($scope, $rootScope, $location,
 				}, function(error){
 					console.log("Injection error!");
 					console.log(error);
+
+					loadingModal.close();
+
+					ModalFactory.generateErrorModal("An error occured.", 
+						"An error occured while remotely configuring the device. Until further notice, use username and password for shutdown of target.");
+
 				});
 			});
 		}, function(error, status){
-			loadingModal.close();
+			ModalFactory.generateErrorModal("An error occured.", "An error occured while submitting device info. Please re-check the information and try again.");
 		});
 
 	};

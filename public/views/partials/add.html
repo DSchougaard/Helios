@@ -33,7 +33,7 @@
 
 
     <!-- Save User for Shutdown Option -->
-    <div class="form-group">
+    <div class="form-group" ng-show="OKButton == 'Add'">
         <label for="storeUser" class="control-label col-md-2">Store Username for Shutdown</label>
         <div class="col-md-10" style="padding-top:7px;">
             <input type="checkbox" name="storeUser" ng-model="storeUser">
@@ -125,6 +125,9 @@
         <div class="col-md-10 btn-group pull-right" role="group" aria-label="..?">
             <button class="btn btn-success" ng-click="submit(device)" ng-disabled="addMachineForm.$invalid">{{OKButton}}</button>
             <button class="btn btn-danger" ng-click="cancel()">Cancel</button>
+
+            <button class="btn btn-info" ng-click="test()">Cancel</button>
+
         </div>
     </div>
 </form>
