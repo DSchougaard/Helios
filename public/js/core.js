@@ -358,18 +358,27 @@ helios.controller('addDeviceController', function($scope, $rootScope, $location,
 				console.log("Error adding device, without remote config");
 				ModalFactory.generateErrorModal("An error occured.", "An error occured while submitting device info. Please re-check the information and try again.");
 			});
+			// Early termination ftw
 			return;
 		}  
 
-		// User chose to select custom user
-		if( $scope.injectOpts.user !== undefined ){
+		// User chose to select custom user, without injecting the cet
+		if( $scope.storeUser && $scope.injectOpts.user == false && !$scope.injectOpts.cert){
+			$scope.device.ssh_username;
+			$scope.device.cert_injected = false;
 
-		}
-
-
-		if( $scope.injectOpts.cert ){
-			$scope.device.cert_injected = true;
-		}
+			$http.post('/api/device', $scope.device)
+			.then(function(result){
+				console.log("Device added without remote config");
+				DeviceBroker.add($scope.device);
+				$location.path('/');
+			}, function(error){
+				console.log("Error adding device w. custom user, without remote config");
+				ModalFactory.generateErrorModal("An error occured.", "An error occured while submitting device info. Please re-check the information and try again.");
+			});
+			// Early temrination ftw
+			return;
+		}	
 
 
 		// Promt user for password
@@ -377,17 +386,36 @@ helios.controller('addDeviceController', function($scope, $rootScope, $location,
 
 		// When username and password entry is gotten, perform remote configuration
 		passwordModal.result.then(function(user){
-
 			console.log("Remotely configuring");
-			
+
 			// Set username to undefined should default username be selected
 			var inject = {
 				username : $scope.injectOpts.user? undefined : $scope.device.ssh_username
 			}
 
+
 			var injectOpts = $scope.injectOpts;
 			var loadingModal = ModalFactory.generateWaitModal();
 			var device = $scope.device;
+
+			// User chose to select custom user, and injecting cert into it.
+			if( $scope.storeUser && $scope.injectOpts.user !== undefined && $scope.injectOpts.cert ){
+				$scope.injectOpts.user = false;
+
+
+				$http.post('/api/config/remote', { injectOpts, inject, device, user })
+				.then(function(result){
+					console.log("Device added after remotely configuring");
+					DeviceBroker.add($scope.device);
+					loadingModal.close();
+				}, function(error){
+					loadingModal.close();
+					ModalFactory.generateErrorModal("An error occured.", "An error occured while submitting device info. Please re-check the information and try again.");
+				});
+				// Early termination
+				return;
+			}
+
 			$http.post('/api/config/remote', { injectOpts, inject, device, user })
 			.then(function(result){
 				console.log("Injection successful.");
