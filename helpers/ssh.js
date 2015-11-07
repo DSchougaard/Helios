@@ -37,7 +37,7 @@ module.exports.execute = function(target, user, commandSequence){
 		},
 		onCommandTimeout: function(command, response, sshObj, stream, connection){
 			console.log("SSH::Execute: SSH command timed out.");
-			deferred.reject({command, response});
+			deferred.reject({command:command, response:response});
 		}
 
 	};
