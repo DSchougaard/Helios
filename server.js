@@ -6,7 +6,6 @@ var express 		= require('express');
 var path 			= require('path');
 var bodyParser 		= require('body-parser');
 var methodOverride 	= require('method-override');
-var MongoClient		= require('mongodb').MongoClient;
 var assert 			= require('assert');
 var fs 				= require('fs');
 var http 			= require('http');
@@ -31,9 +30,6 @@ var https 			= require('https');
 global.__base = __dirname + '/';
 
 var config = require("./config.json");
-
-// Database Variables
-var device_collection = "devicecollection";
 
 // Certificates
 if(  config.ssl_enabled === true ){
@@ -86,7 +82,7 @@ var user = {username: "daniel", password:"test"}
 console.log("test: %s", sshCommands.injectUser("daniel").concat(sshCommands.injectCert(device, user, "Sofie")));
 */
 // Helios Routes
-require('./app')(app, db, device_collection);
+require('./app')(app, db);
 
 // HTTPS and HTTP servers, using forceSSL
 var secureServer = https.createServer(credentials, app);
