@@ -102,7 +102,7 @@ module.exports = function(app, db){
 			onCommandTimeout: function(command, response, sshObj, stream, connection){
 				console.log("API::Config::User: SSH command timed out.")
 				//res.status(404).send("SSH Error: Connection timed out.");
-				res.sendStatus(200).send({command, response});
+				res.sendStatus(200).send({command:command, response:response});
 			} 
 
 		};
@@ -181,7 +181,7 @@ module.exports = function(app, db){
 			onCommandTimeout: function(command, response, sshObj, stream, connection){
 				console.log("API::Config::Cert: SSH command timed out.")
 				//res.sendStatus(404);
-				res.sendStatus(504).send({command, response});
+				res.sendStatus(504).send({command:command, response:response});
 			}
 
 		};
@@ -238,7 +238,7 @@ module.exports = function(app, db){
 			},
 			onCommandTimeout: function(command, response, sshObj, stream, connection){
 				console.log("API::Config::Cert: SSH command timed out.")
-				res.sendStatus(404).send({command, response});
+				res.sendStatus(404).send({command:command, response:response});
 			}
 		};
 		var SSH = new SSH2Shell(targetPermInject);

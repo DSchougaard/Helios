@@ -4,7 +4,7 @@
 	"ssl_enabled" 		: true,
 	"ssl_key"			: "crypto/ssl/helios-key.pem",
 	"ssl_cert" 			: "crypto/ssl/helios-cert.pem",
-	"ssh_key"			: "ssh/id_rsa",
+	"ssh_key"			: "crypto/ssh/id_rsa",
 	"db_url" 			: "mongodb://localhost:27017/helios",
 	"ssh_user"			: "heliosshutdownuser"
 }
