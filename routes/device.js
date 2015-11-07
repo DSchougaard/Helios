@@ -6,8 +6,6 @@ var sanitize = require('mongo-sanitize');
 
 var config = require(__base + 'config.json');
 
-
-var ObjectId = require('mongodb').ObjectID
 /*
 	Own Modules
 */
