@@ -1,3 +1,5 @@
+var config = require(__base + 'config.json');
+
 module.exports.shutdown = function(device, username, password){
 	var Client = require('ssh2').Client;
 
@@ -53,7 +55,7 @@ module.exports.shutdown_cert = function(device, username){
 		host: device.ip,
 		port: 22,
 		username: username,
-		privateKey: require('fs').readFileSync('ssh/id_rsa')
+		privateKey: require('fs').readFileSync(config.ssh_key)
 	});
 
 }
