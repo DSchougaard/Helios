@@ -1,8 +1,9 @@
-module.exports = function(app, db, device_collection){
+module.exports = function(app, db){
 	/*
 		Routes
 	*/
-	require('./routes/device')(app, db, device_collection);
+	require('./routes/device')(app, db);
+	require('./routes/shutdown')(app, db);
 	require('./routes/scan')(app, db);
 	require('./routes/helios')(app, db);
 	require('./routes/config')(app, db);

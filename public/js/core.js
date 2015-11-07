@@ -131,8 +131,76 @@ helios.controller('listController', function($scope, $route, $http, $modal, Devi
 			$scope.devices = response;
 		});
 
-
 	$scope.act = function(device){
+
+		if( device.online ){	
+			/* Three choices:
+				1. Nothing is stored. Promt for username AND password.
+				2. Username is stored. Promt for password.
+				3. Username is stored, and cert injected. No promt.
+			*/
+
+			console.log("Acting on device %j", device);
+
+			// Payload skeleton
+			var payload = {
+				device: {
+					id: device.id
+				},
+				user: {
+					username: null,
+					password: null
+				}
+			}
+
+			if( device.ssh_username && device.cert_injected ){
+				$http.post('/api/shutdown', payload)
+				.then(function(result){
+					DeviceBroker.setOnline(device, false);
+					console.log("Success");
+				}, function(error){
+					console.log(error);
+				});
+				return;
+			}
+
+			var passwordModal;
+
+			if( !device.ssh_username && !device.cert_injected ){
+				passwordModal = ModalFactory.generatePasswordModal(true);
+			}else if( device.ssh_username && !device.cert_injected ){
+				passwordModal = ModalFactory.generatePasswordModal(false);
+			}
+ 	
+ 			passwordModal.result.then(function(user){
+ 				payload.username = user.username;
+ 				payload.password = user.password;
+
+ 				$http.post('/api/device/shutdown', payload)
+ 				.then(function(result){
+ 					console.log("Successfully shutdown target device, with username / password combination");
+ 					DeviceBroker.setOnline(device, false);
+ 				}, function(error){
+ 					console.log("Error: " + error);
+ 				});
+ 			});
+		}else{
+			$http.get('/api/device/wake/' + device.id)
+				.success(function(data) {
+					console.log("Successfully sent magic packet to js.", device);
+					DeviceBroker.setOnline(device, true);
+				})
+				.error(function(data){
+					console.log("Error in sending magic packet to %j.", device);
+				});
+		}
+
+	}
+
+
+
+
+	$scope.act_ = function(device){
 		var api_selection = '/api/device/';
 		if( device.online ){
 			$http.post(api_selection + 'shutdown', {device:device})
@@ -175,7 +243,6 @@ helios.controller('listController', function($scope, $route, $http, $modal, Devi
 				});
 
 		}
-
 	}
 
 	$scope.delete = function(device){
@@ -194,21 +261,19 @@ helios.controller('listController', function($scope, $route, $http, $modal, Devi
 	}
 });
 
-helios.controller('passwordPromtController', function($scope, $modalInstance, promtForUsername){
-	$scope.promtForUsername = promtForUsername;
+helios.controller('passwordModalController', function($scope, $modalInstance, getUsername){
+	$scope.promtForUsername = getUsername;
 	$scope.ok = function(){
-		$modalInstance.close({username: $scope.username, password:$scope.password});
-	}
-	$scope.cancel = function(){
-		$modalInstance.dismiss('cancel');
-	}
-});
+		var result = {
+			username: null,
+			password: null
+		}
 
+		if( getUsername )
+			result.username = $scope.username;
 
-helios.controller('passwordModalController', function($scope, $modalInstance){
-	$scope.promtForUsername = true;
-	$scope.ok = function(){
-		$modalInstance.close({username:$scope.username, password:$scope.password});
+		result.password = $scope.password;
+		$modalInstance.close(result);
 	}
 	$scope.cancel = function(){
 		$modalInstance.dismiss('cancel');
@@ -225,9 +290,9 @@ helios.controller('errorModalController', function($scope, $modalInstance, conte
 
 helios.factory('ModalFactory', function($modal){
 	var service = {
-		generateErrorModal: generateErrorModal,
-		generatePasswordModal: generatePasswordModal,
-		generateWaitModal: generateWaitModal
+		generateErrorModal: 	generateErrorModal,
+		generatePasswordModal: 	generatePasswordModal,
+		generateWaitModal: 		generateWaitModal
 	}
 	return service;
 
@@ -246,10 +311,15 @@ helios.factory('ModalFactory', function($modal){
 		});
 	}
 
-	function generatePasswordModal(){
+	function generatePasswordModal(getUsername){
 		return $modal.open({
 			templateUrl: '/views/partials/popups/password.html',
-			controller: 'passwordModalController'
+			controller: 'passwordModalController',
+			resolve:{
+				getUsername: function(){
+					return getUsername || false;
+				}
+			}
 		});
 	}
 

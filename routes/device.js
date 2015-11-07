@@ -23,12 +23,14 @@ var ping_options = {
 	timeout: 1
 }
 
+var ONLINE_DEBUG = true;
+
 
 function ping_host(device){
 	var deferred = Q.defer();
 	ping.sys.probe(device.ip, 
 		function(isAlive){
-			device.online = isAlive;
+			device.online = isAlive || ONLINE_DEBUG;
 			deferred.resolve(device);
 		});
 
@@ -110,7 +112,6 @@ module.exports = function(app, db, device_collection){
 			});
 
 		});
-
 	});
 
 	app.post('/api/device/shutdown', function(req, res){
@@ -206,7 +207,6 @@ module.exports = function(app, db, device_collection){
 			}
 		});
 	});
-
 
 	app.put('/api/device/:id', function(req, res){
 		var id = sanitize(req.params.id);
