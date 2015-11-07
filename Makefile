@@ -1,4 +1,4 @@
-SSL_SUBJ = /C=DK/ST=NA/L=Copenhagen/O=Schougaard Technologies/CN=localhost
+SSL_SUBJ = "/C=DK/ST=NA/L=Copenhagen/O=Schougaard Technologies/CN=localhost"
 
 
 all:
@@ -16,15 +16,14 @@ cert:
 	openssl x509 -req -in crypto/ssl/helios-csr.pem -signkey crypto/ssl/helios-key.pem -out crypto/ssl/helios-cert.pem
 ssh:
 	mkdir -p crypto/ssh
-	ssh-keygen -b 4096 -t rsa -f ssh/id_rsa -q -N ""
+	ssh-keygen -b 4096 -t rsa -f crypto/ssh/id_rsa -q -N ""
 
 
 
 install:
 	echo 'Installing Helios'
-	npm install -g bower
 	npm install
-	bower install
+	node_modules/bower/bin/bower install
 	apt-get install nmap
 
 db_conf:
